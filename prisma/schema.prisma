@@ -1,0 +1,79 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model employee {
+  id            Int            @id @default(autoincrement())
+  first_name    String         @db.VarChar(255)
+  last_name     String         @db.VarChar(255)
+  dep_id        Int
+  birth_date    DateTime       @db.Date
+  email         String         @db.VarChar(255)
+  age           Int
+  gender        String         @db.VarChar(255)
+  address       String         @db.VarChar(255)
+  username      String         @db.VarChar(255)
+  password      String         @db.VarChar(255)
+  auth          Int
+  dep           department     @relation(fields: [dep_id], references: [id])
+  approval_docs approval_doc[]
+  time_record   time_record[]
+}
+
+model department {
+  id           Int            @id @default(autoincrement())
+  dep_name     String         @db.VarChar(255)
+  approval_doc approval_doc[]
+  employee     employee[]
+}
+
+model leave_type {
+  id           Int            @id @default(autoincrement())
+  type_name    String         @db.VarChar(255)
+  quantity     Int
+  approval_doc approval_doc[]
+}
+
+model approval_doc {
+  id             Int        @id @default(autoincrement())
+  emp_id         Int
+  dep_id         Int
+  type_id        Int
+  start_date     DateTime   @db.DateTime(0)
+  end_date       DateTime   @db.DateTime(0)
+  reason         String     @db.VarChar(255)
+  written_place  String     @db.VarChar(255)
+  backup_contact String     @db.VarChar(255)
+  attachment     String     @db.VarChar(255)
+  status         String     @db.VarChar(255)
+  dep            department @relation(fields: [dep_id], references: [id])
+  emp            employee   @relation(fields: [emp_id], references: [id])
+  type           leave_type @relation(fields: [type_id], references: [id])
+
+  @@index([dep_id], map: "approval_doc_dep_id_fkey")
+  @@index([emp_id], map: "approval_doc_emp_id_fkey")
+  @@index([type_id], map: "approval_doc_type_id_fkey")
+}
+
+model time_record {
+  id          Int      @id @default(autoincrement())
+  emp_id      Int
+  date        DateTime @db.Date
+  clock_in    DateTime @db.Time(0)
+  clock_out   DateTime @db.Time(0)
+  total_hours Decimal  @db.Decimal(10, 0)
+  emp         employee @relation(fields: [emp_id], references: [id])
+
+  @@index([emp_id], map: "time_record_emp_id_fkey")
+}
+
+model day_off {
+  id   Int      @id @default(autoincrement())
+  name String   @db.VarChar(255)
+  date DateTime @db.Date
+}
