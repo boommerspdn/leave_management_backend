@@ -31,18 +31,17 @@ app.use('/api/LeaveType', require('./routes/api/LeaveType'));
 // Global function for error handling
 global.checkingValidationError = (e, req, res) => {
   if (e instanceof Prisma.PrismaClientValidationError) {
-      console.log(e)
-      res.status(422).json({ status: 422, message: 'Incorrect field type provided or missing an input' })
+    console.log(e)
+    res.status(422).json({ status: 422, message: 'Incorrect field type provided or missing an input' })
   } else if (e.meta) {
-      console.log(e)
-      res.status(404).json({ status: 404, message: e.meta.cause })
+    console.log(e)
+    res.status(404).json({ status: 404, message: e.meta.cause })
   }
   else {
-      console.log(e)
-      res.status(400).json({ status: 400, message: "Error Occured" })
+    console.log(e)
+    res.status(400).json({ status: 400, message: "Error Occured" })
   }
 }
-
 
 const PORT = process.env.PORT || 5000;
 
