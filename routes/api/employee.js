@@ -25,7 +25,7 @@ router.post('/', async (req, res) => {
             },
         })
 
-        res.status(201).json(createEmployee)
+        res.status(201).json({ status: 200, message: 'Record has been created', createEmployee })
     } catch (e) {
         checkingValidationError(e, req, res)
     }
@@ -54,7 +54,7 @@ router.get('/:id', async (req, res) => {
                 dep: true
             }
         });
-        
+
         res.status(200).json(singleEmployee)
     } catch (e) {
         checkingValidationError(e, req, res)
@@ -73,7 +73,7 @@ router.put('/:id', async (req, res) => {
                 id: id
             },
             data: {
-                first_name: firstName || undefined, 
+                first_name: firstName || undefined,
                 last_name: lastName || undefined,
                 dep_id: department ? parseInt(department) : undefined,
                 birth_date: birthDate ? new Date(birthDate) : undefined,
@@ -87,7 +87,7 @@ router.put('/:id', async (req, res) => {
             }
         })
 
-        res.status(200).json({status: 200, message: `Record id ${id} successfully updated`})
+        res.status(200).json({ status: 200, message: `Record id ${id} successfully updated` })
     } catch (e) {
         checkingValidationError(e, req, res)
     }
@@ -104,7 +104,7 @@ router.delete('/:id', async (req, res) => {
             },
         });
 
-        res.status(200).json({status: 200, message: `Record id ${id} successfully deleted`})
+        res.status(200).json({ status: 200, message: `Record id ${id} successfully deleted` })
     } catch (e) {
         checkingValidationError(e, req, res)
     }

@@ -16,7 +16,7 @@ router.post('/', async (req, res) => {
             },
         })
 
-        res.status(201).json(createLeaveType)
+        res.status(201).json({ status: 200, message: 'Record has been created', createLeaveType })
     } catch (e) {
         checkingValidationError(e, req, res)
     }

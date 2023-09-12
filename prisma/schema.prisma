@@ -75,7 +75,8 @@ model time_record {
 }
 
 model day_off {
-  id   Int      @id @default(autoincrement())
-  name String   @db.VarChar(255)
-  date DateTime @db.Date
+  id         Int       @id @default(autoincrement())
+  name       String    @db.VarChar(255)
+  start_date DateTime  @unique @db.Date
+  end_date   DateTime? @unique @db.Date
 }

@@ -16,7 +16,7 @@ router.post('/', async (req, res) => {
             },
         })
 
-        res.status(201).json(createDepartment)
+        res.status(201).json({ status: 200, message: 'Record has been created', createDepartment })
     } catch (e) {
         checkingValidationError(e, req, res)
     }
