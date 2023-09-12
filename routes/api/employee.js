@@ -39,7 +39,7 @@ router.get('/', async (req, res) => {
         }
     });
 
-    res.json(allEmployee);
+    res.status(200).json(allEmployee);
 });
 
 // Read single employee
@@ -73,16 +73,16 @@ router.put('/:id', async (req, res) => {
                 id: id
             },
             data: {
-                first_name: firstName,
-                last_name: lastName,
+                first_name: firstName || undefined, 
+                last_name: lastName || undefined,
                 dep_id: department ? parseInt(department) : undefined,
                 birth_date: birthDate ? new Date(birthDate) : undefined,
-                email: email,
-                phone: phone,
-                gender: gender,
-                address: address,
-                username: username,
-                password: password,
+                email: email || undefined,
+                phone: phone || undefined,
+                gender: gender || undefined,
+                address: address || undefined,
+                username: username || undefined,
+                password: password || undefined,
                 auth: auth ? parseInt(auth) : undefined
             }
         })

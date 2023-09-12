@@ -27,7 +27,7 @@ router.get('/', async (req, res) => {
     const allDepartment = await prisma.department.findMany({
     });
 
-    res.json(allDepartment);
+    res.status(200).json(allDepartment);
 });
 
 // Read single department
