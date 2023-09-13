@@ -27,6 +27,7 @@ app.use('/api/employee', require('./routes/api/employee'));
 app.use('/api/LeaveDocument', require('./routes/api/LeaveDocument'));
 app.use('/api/LeaveDashboard', require('./routes/api/LeaveDashboard'));
 app.use('/api/LeaveType', require('./routes/api/LeaveType'));
+app.use('/api/approver', require('./routes/api/approver'));
 
 
 // Global function for error handling
