@@ -5,7 +5,7 @@ const { PrismaClient } = require('@prisma/client')
 const prisma = new PrismaClient()
 
 
-// Create department
+// Create approver
 router.post('/', async (req, res) => {
     const { depId, firstApprover, secondApprover } = req.body;
 
@@ -24,14 +24,14 @@ router.post('/', async (req, res) => {
     }
 });
 
-// Read all departments
+// Read all approvers
 router.get('/', async (req, res) => {
     const allApprover = await prisma.dep_appr.findMany();
 
     res.status(200).json(allApprover);
 });
 
-// Read single department
+// Read single approver
 router.get('/:id', async (req, res) => {
     const id = parseInt(req.params.id)
     try {
@@ -48,7 +48,7 @@ router.get('/:id', async (req, res) => {
     }
 });
 
-// Update department info
+// Update approver info
 router.put('/:id', async (req, res) => {
     const id = parseInt(req.params.id)
     const { depId, firstApprover, secondApprover } = req.body;
@@ -71,7 +71,7 @@ router.put('/:id', async (req, res) => {
     }
 })
 
-// Delete department info
+// Delete approver info
 router.delete('/:id', async (req, res) => {
     const id = parseInt(req.params.id)
 
