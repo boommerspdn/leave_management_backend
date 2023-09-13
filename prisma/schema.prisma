@@ -20,6 +20,7 @@ model employee {
   username      String         @db.VarChar(255)
   password      String         @db.VarChar(255)
   auth          Int
+  status        String         @db.VarChar(255)
   approval_docs approval_doc[]
   dep           department     @relation(fields: [dep_id], references: [id])
   time_record   time_record[]

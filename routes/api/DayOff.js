@@ -24,24 +24,24 @@ router.post('/', async (req, res) => {
 });
 
 // Create day offs
-router.post('/CreateMany', async (req, res) => {
-    const data = req.body.map((obj) => ({
-        name: obj.name,
-        start_date: new Date(obj.startDate),
-        end_date: new Date(obj.endDate)
-    }))
+// router.post('/CreateMany', async (req, res) => {
+//     const data = req.body.map((obj) => ({
+//         name: obj.name,
+//         start_date: new Date(obj.startDate),
+//         end_date: new Date(obj.endDate)
+//     }))
 
 
-    try {
-        const createDayOffs = await prisma.day_off.createMany({
-            data: data,
-        })
+//     try {
+//         const createDayOffs = await prisma.day_off.createMany({
+//             data: data,
+//         })
 
-        res.status(201).json({ status: 200, message: 'Records has been created', createDayOffs })
-    } catch (e) {
-        checkingValidationError(e, req, res)
-    }
-});
+//         res.status(201).json({ status: 200, message: 'Records has been created', createDayOffs })
+//     } catch (e) {
+//         checkingValidationError(e, req, res)
+//     }
+// });
 
 // Read all day offs
 router.get('/', async (req, res) => {
