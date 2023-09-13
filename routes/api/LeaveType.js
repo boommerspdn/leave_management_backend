@@ -63,7 +63,7 @@ router.put('/:id', async (req, res) => {
             },
         })
 
-        res.status(200).json({ status: 200, message: `Record id ${id} successfully updated` })
+        res.status(200).json({ status: 200, message: `Record id ${id} successfully updated`, editLeaveType })
     } catch (e) {
         checkingValidationError(e, req, res)
     }

@@ -23,26 +23,6 @@ router.post('/', async (req, res) => {
     }
 });
 
-// Create holidays
-// router.post('/CreateMany', async (req, res) => {
-//     const data = req.body.map((obj) => ({
-//         name: obj.name,
-//         start_date: new Date(obj.startDate),
-//         end_date: new Date(obj.endDate)
-//     }))
-
-
-//     try {
-//         const createDayOffs = await prisma.day_off.createMany({
-//             data: data,
-//         })
-
-//         res.status(201).json({ status: 200, message: 'Records has been created', createDayOffs })
-//     } catch (e) {
-//         checkingValidationError(e, req, res)
-//     }
-// });
-
 // Read all holidays
 router.get('/', async (req, res) => {
     const allHolidays = await prisma.holiday.findMany({

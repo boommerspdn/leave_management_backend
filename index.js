@@ -36,7 +36,7 @@ global.checkingValidationError = (e, req, res) => {
     res.status(422).json({ status: 422, message: 'Incorrect field type provided or missing an input' })
   } else if (e.meta) {
     console.log(e)
-    res.status(404).json({ status: 404, message: e.meta.cause || `Missing parent or conflict with key of ${e.meta.field_name}` })
+    res.status(404).json({ status: 404, message: e.meta.cause || `conflicted with key of ${e.meta.field_name} or unique key already exist` })
   }
   else {
     console.log(e)

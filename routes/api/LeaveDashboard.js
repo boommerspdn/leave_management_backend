@@ -46,7 +46,6 @@ router.get('/:empId', async (req, res) => {
         const dayOffLeft = parseInt(dayOffAmount) - allDayOff._count.id
 
         // Get count of pending day off
-
         const pendingDayOff = await prisma.approval_doc.aggregate({
             _count: {
                 id: true
@@ -62,6 +61,7 @@ router.get('/:empId', async (req, res) => {
             },
         })
 
+        // Get count of approved day off
         const approvedDayOff = await prisma.approval_doc.aggregate({
             _count: {
                 id: true
@@ -77,6 +77,7 @@ router.get('/:empId', async (req, res) => {
             },
         })
 
+        // Get count of rejected day off
         const rejectedDayOff = await prisma.approval_doc.aggregate({
             _count: {
                 id: true
@@ -93,7 +94,7 @@ router.get('/:empId', async (req, res) => {
         })
 
 
-        res.status(200).json({ status: 200, dayOffLeft: dayOffLeft, pendingDayOff, approvedDayOff, rejectedDayOff })
+        res.status(200).json({ dayOffLeft, pendingDayOff, approvedDayOff, rejectedDayOff })
     } catch (e) {
         checkingValidationError(e, req, res)
     }
