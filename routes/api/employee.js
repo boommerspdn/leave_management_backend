@@ -6,14 +6,14 @@ const prisma = new PrismaClient();
 
 // Create employee
 router.post('/', async (req, res) => {
-    const { firstName, lastName, department, birthDate, email, phone, gender, address, username, password, auth } = req.body;
+    const { firstName, lastName, depId, birthDate, email, phone, gender, address, username, password, auth, dateEmployed, status } = req.body;
 
     try {
         const createEmployee = await prisma.employee.create({
             data: {
                 first_name: firstName,
                 last_name: lastName,
-                dep_id: parseInt(department),
+                dep_id: parseInt(depId),
                 birth_date: birthDate && new Date(birthDate),
                 email: email,
                 phone: phone,
@@ -21,7 +21,9 @@ router.post('/', async (req, res) => {
                 address: address,
                 username: username,
                 password: password,
-                auth: auth ? parseInt(auth) : 0
+                date_employed: new Date(dateEmployed),
+                auth: auth ? parseInt(auth) : 0,
+                status: status
             },
         })
 
@@ -65,7 +67,7 @@ router.get('/:id', async (req, res) => {
 // Update employee info
 router.put('/:id', async (req, res) => {
     const id = parseInt(req.params.id)
-    const { firstName, lastName, department, birthDate, email, phone, gender, address, username, password, auth } = req.body;
+    const { firstName, lastName, depId, birthDate, email, phone, gender, address, username, password, auth, dateEmployed, status } = req.body;
 
     try {
         const editEmployee = await prisma.employee.update({
@@ -75,7 +77,7 @@ router.put('/:id', async (req, res) => {
             data: {
                 first_name: firstName || undefined,
                 last_name: lastName || undefined,
-                dep_id: department ? parseInt(department) : undefined,
+                dep_id: depId ? parseInt(depId) : undefined,
                 birth_date: birthDate ? new Date(birthDate) : undefined,
                 email: email || undefined,
                 phone: phone || undefined,
@@ -83,11 +85,13 @@ router.put('/:id', async (req, res) => {
                 address: address || undefined,
                 username: username || undefined,
                 password: password || undefined,
-                auth: auth ? parseInt(auth) : undefined
+                date_employed: dateEmployed ? new Date(dateEmployed) : undefined,
+                auth: auth ? parseInt(auth) : 0,
+                status: status || undefined
             }
         })
 
-        res.status(200).json({ status: 200, message: `Record id ${id} successfully updated` })
+        res.status(200).json({ status: 200, message: `Record id ${id} successfully updated`, editEmployee })
     } catch (e) {
         checkingValidationError(e, req, res)
     }

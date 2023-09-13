@@ -5,7 +5,7 @@ const moment = require('moment')
 
 const prisma = new PrismaClient()
 
-// Function to calculate total hours of clock in and out
+// Function to calculate total hours for clock in and out
 const calculateTotalHours = async (clockIn, clockOut, id) => {
     if (clockIn && clockOut) {
         var startTime = new moment(new Date(clockIn))
@@ -51,13 +51,13 @@ router.post('/', async (req, res) => {
             data: {
                 emp_id: parseInt(empId),
                 date: new Date(date),
-                clock_in: clockIn,
-                clock_out: clockOut || undefined,
-                total_hours: await calculateTotalHours(clockIn, clockOut) || undefined
+                clock_in: clockIn ? new Date(clockIn) : undefined,
+                clock_out: clockOut ? new Date(clockOut) : undefined,
+                total_hours: clockIn && clockOut ? await calculateTotalHours(clockIn, clockOut) : undefined
             },
         })
 
-        res.status(201).json({ status: 200, message: 'Record has been created', createTimeRecord })
+        res.status(201).json({ status: 201, message: 'Record has been created', createTimeRecord })
     } catch (e) {
         checkingValidationError(e, req, res)
     }
@@ -81,8 +81,8 @@ router.get('/:id', async (req, res) => {
             },
         });
 
-        if (singleLeaveType == null) return res.status(404).json({ status: 404, msg: `no record with id of ${id}` })
-        res.status(200).json(singleLeaveType)
+        if (singleTimeRecord == null) return res.status(404).json({ status: 404, msg: `no record with id of ${id}` })
+        res.status(200).json(singleTimeRecord)
     } catch (e) {
         checkingValidationError(e, req, res)
     }
@@ -101,8 +101,8 @@ router.put('/:id', async (req, res) => {
             data: {
                 emp_id: parseInt(empId) || undefined,
                 date: date ? new Date(date) : undefined,
-                clock_in: clockIn || undefined,
-                clock_out: clockOut || undefined,
+                clock_in: clockIn ? new Date(clockIn) : undefined,
+                clock_out: clockOut ? new Date(clockOut) : undefined,
                 total_hours: await calculateTotalHours(clockIn, clockOut, id) || undefined
             },
         })

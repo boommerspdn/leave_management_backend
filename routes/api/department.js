@@ -16,7 +16,7 @@ router.post('/', async (req, res) => {
             },
         })
 
-        res.status(201).json({ status: 200, message: 'Record has been created', createDepartment })
+        res.status(201).json({ status: 201, message: 'Record has been created', createDepartment })
     } catch (e) {
         checkingValidationError(e, req, res)
     }
@@ -62,7 +62,7 @@ router.put('/:id', async (req, res) => {
             }
         })
 
-        res.status(200).json({ status: 200, message: `Record id ${id} successfully updated` })
+        res.status(200).json({ status: 200, message: `Record id ${id} successfully updated`, editDepartment })
     } catch (e) {
         checkingValidationError(e, req, res)
     }

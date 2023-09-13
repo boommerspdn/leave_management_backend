@@ -11,11 +11,11 @@ router.post('/', async (req, res) => {
     try {
         const createApprovalDoc = await prisma.approval_doc.create({
             data: {
-                emp_id: empId,
-                dep_id: depId,
-                type_id: typeId,
-                start_date: startDate,
-                end_date: endDate,
+                emp_id: parseInt(empId),
+                dep_id: parseInt(depId),
+                type_id: parseInt(typeId),
+                start_date: new Date(startDate),
+                end_date: new Date(endDate),
                 reason: reason,
                 written_place: writtenPlace,
                 backup_contact: backupContact,
@@ -24,7 +24,7 @@ router.post('/', async (req, res) => {
             },
         })
 
-        res.status(201).json({ status: 200, message: 'Record has been created', createApprovalDoc })
+        res.status(201).json({ status: 201, message: 'Record has been created', createApprovalDoc })
     } catch (e) {
         checkingValidationError(e, req, res)
     }
@@ -66,11 +66,11 @@ router.put('/:id', async (req, res) => {
                 id: id
             },
             data: {
-                emp_id: empId || undefined,
-                dep_id: depId || undefined,
-                type_id: typeId || undefined,
-                start_date: new Date(startDate) || undefined,
-                end_date: new Date(endDate),
+                emp_id: empId ? parseInt(empId) : undefined,
+                dep_id: depId ? parseInt(depId) : undefined,
+                type_id: typeId ? parseInt(typeId) : undefined,
+                start_date: startDate ? new Date(startDate) : undefined,
+                end_date: endDate ? new Date(endDate) : undefined,
                 reason: reason || undefined,
                 written_place: writtenPlace || undefined,
                 backup_contact: backupContact || undefined,

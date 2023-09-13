@@ -20,11 +20,12 @@ app.get('/', (req, res) =>
 app.use('/api/AdminDashboard', require('./routes/api/AdminDashboard'));
 app.use('/api/ClockInOut', require('./routes/api/ClockInOut'));
 app.use('/api/DayOff', require('./routes/api/DayOff'));
+app.use('/api/holiday', require('./routes/api/holiday'));
 app.use('/api/department', require('./routes/api/department'));
 app.use('/api/DepartmentDashboard', require('./routes/api/DepartmentDashboard'));
 app.use('/api/employee', require('./routes/api/employee'));
 app.use('/api/LeaveDocument', require('./routes/api/LeaveDocument'));
-app.use('/api/LeaveStatistic', require('./routes/api/LeaveStatistic'));
+app.use('/api/LeaveDashboard', require('./routes/api/LeaveDashboard'));
 app.use('/api/LeaveType', require('./routes/api/LeaveType'));
 
 
@@ -35,7 +36,7 @@ global.checkingValidationError = (e, req, res) => {
     res.status(422).json({ status: 422, message: 'Incorrect field type provided or missing an input' })
   } else if (e.meta) {
     console.log(e)
-    res.status(404).json({ status: 404, message: e.meta.cause })
+    res.status(404).json({ status: 404, message: e.meta.cause || `Missing parent or conflict with key of ${e.meta.field_name}` })
   }
   else {
     console.log(e)

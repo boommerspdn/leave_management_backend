@@ -11,15 +11,16 @@ model employee {
   id            Int            @id @default(autoincrement())
   first_name    String         @db.VarChar(255)
   last_name     String         @db.VarChar(255)
-  dep_id        Int
   birth_date    DateTime       @default(now()) @db.Date
   email         String         @db.VarChar(255)
-  phone         String         @db.VarChar(255)
   gender        String         @db.VarChar(255)
   address       String         @db.VarChar(255)
   username      String         @db.VarChar(255)
   password      String         @db.VarChar(255)
   auth          Int
+  dep_id        Int
+  date_employed DateTime       @db.Date
+  phone         String         @db.VarChar(255)
   status        String         @db.VarChar(255)
   approval_docs approval_doc[]
   dep           department     @relation(fields: [dep_id], references: [id])
@@ -75,9 +76,15 @@ model time_record {
   @@index([emp_id], map: "time_record_emp_id_fkey")
 }
 
-model day_off {
+model holiday {
   id         Int       @id @default(autoincrement())
   name       String    @db.VarChar(255)
   start_date DateTime  @unique @db.Date
   end_date   DateTime? @unique @db.Date
+}
+
+model day_off {
+  id           Int @id @default(autoincrement())
+  service_year Int
+  day_amount   Int
 }
