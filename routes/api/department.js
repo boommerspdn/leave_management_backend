@@ -7,12 +7,13 @@ const prisma = new PrismaClient()
 
 // Create department
 router.post('/', async (req, res) => {
-    const { departmentName } = req.body;
+    const { departmentName, headDep } = req.body;
 
     try {
         const createDepartment = await prisma.department.create({
             data: {
-                dep_name: departmentName
+                dep_name: departmentName,
+                head_dep: parseInt(headDep)
             },
         })
 
@@ -50,7 +51,7 @@ router.get('/:id', async (req, res) => {
 // Update department info
 router.put('/:id', async (req, res) => {
     const id = parseInt(req.params.id)
-    const { departmentName } = req.body;
+    const { departmentName, headDep } = req.body;
 
     try {
         const editDepartment = await prisma.department.update({
@@ -58,7 +59,8 @@ router.put('/:id', async (req, res) => {
                 id: id
             },
             data: {
-                dep_name: departmentName
+                dep_name: departmentName,
+                head_dep: parseInt(headDep)
             }
         })
 

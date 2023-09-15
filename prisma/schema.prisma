@@ -25,6 +25,7 @@ model employee {
   approval_docs approval_doc[]
   dep_appr1     dep_appr[]     @relation("first_appr")
   dep_appr2     dep_appr[]     @relation("second_appr")
+  hod           department[]   @relation("hod")
   dep           department     @relation(fields: [dep_id], references: [id])
   time_record   time_record[]
 
@@ -34,9 +35,13 @@ model employee {
 model department {
   id           Int            @id @default(autoincrement())
   dep_name     String         @db.VarChar(255)
+  head_dep     Int
   approval_doc approval_doc[]
   dep_appr     dep_appr?
+  hod          employee       @relation("hod", fields: [head_dep], references: [id])
   employee     employee[]
+
+  @@index([head_dep], map: "department_head_dep_fkey")
 }
 
 model dep_appr {
@@ -53,10 +58,22 @@ model dep_appr {
 }
 
 model leave_type {
-  id           Int            @id @default(autoincrement())
-  type_name    String         @db.VarChar(255)
-  quantity     Int
-  approval_doc approval_doc[]
+  id            Int             @id @default(autoincrement())
+  type_name     String          @db.VarChar(255)
+  approval_doc  approval_doc[]
+  type_quantity type_quantity[]
+}
+
+model type_quantity {
+  id       Int        @id @default(autoincrement())
+  type_id  Int
+  year_id  Int
+  quantity Int
+  type     leave_type @relation(fields: [type_id], references: [id])
+  year     day_off    @relation(fields: [year_id], references: [id])
+
+  @@index([type_id], map: "type_quantity_type_id_fkey")
+  @@index([year_id], map: "type_quantity_year_id_fkey")
 }
 
 model approval_doc {
@@ -100,7 +117,8 @@ model holiday {
 }
 
 model day_off {
-  id           Int @id @default(autoincrement())
-  service_year Int
-  day_amount   Int
+  id            Int             @id @default(autoincrement())
+  service_year  Int
+  day_amount    Int
+  type_quantity type_quantity[]
 }

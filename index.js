@@ -12,7 +12,7 @@ app.use(express.urlencoded({ extended: false }));
 
 // Home Page Route
 app.get('/', (req, res) =>
-  res.send('Leave Management API')
+  res.status(200).send('Leave Management API')
 );
 
 
@@ -28,6 +28,7 @@ app.use('/api/LeaveDocument', require('./routes/api/LeaveDocument'));
 app.use('/api/LeaveDashboard', require('./routes/api/LeaveDashboard'));
 app.use('/api/LeaveType', require('./routes/api/LeaveType'));
 app.use('/api/approver', require('./routes/api/approver'));
+app.use('/api/TypeQuantity', require('./routes/api/TypeQuantity'));
 
 
 // Global function for error handling
