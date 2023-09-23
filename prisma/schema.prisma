@@ -25,7 +25,6 @@ model employee {
   approval_docs approval_doc[]
   dep_appr1     dep_appr[]     @relation("first_appr")
   dep_appr2     dep_appr[]     @relation("second_appr")
-  hod           department[]   @relation("hod")
   dep           department     @relation(fields: [dep_id], references: [id])
   time_record   time_record[]
 
@@ -35,13 +34,9 @@ model employee {
 model department {
   id           Int            @id @default(autoincrement())
   dep_name     String         @db.VarChar(255)
-  head_dep     Int
   approval_doc approval_doc[]
   dep_appr     dep_appr?
-  hod          employee       @relation("hod", fields: [head_dep], references: [id])
   employee     employee[]
-
-  @@index([head_dep], map: "department_head_dep_fkey")
 }
 
 model dep_appr {
