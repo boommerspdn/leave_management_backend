@@ -18,14 +18,14 @@ model employee {
   username      String         @db.VarChar(255)
   password      String         @db.VarChar(255)
   auth          Int
-  dep_id        Int
+  dep_id        Int?
   date_employed DateTime       @db.Date
   phone         String         @db.VarChar(255)
   status        String         @db.VarChar(255)
   approval_docs approval_doc[]
   dep_appr1     dep_appr[]     @relation("first_appr")
   dep_appr2     dep_appr[]     @relation("second_appr")
-  dep           department     @relation(fields: [dep_id], references: [id])
+  dep           department?    @relation(fields: [dep_id], references: [id])
   time_record   time_record[]
 
   @@index([dep_id], map: "employee_dep_id_fkey")
@@ -42,11 +42,11 @@ model department {
 model dep_appr {
   id          Int        @id @default(autoincrement())
   dep_id      Int        @unique
-  first_appr  Int
-  second_appr Int
+  first_appr  Int?
+  second_appr Int?
   dep         department @relation(fields: [dep_id], references: [id])
-  emp1_appr   employee   @relation("first_appr", fields: [first_appr], references: [id])
-  emp2_appr   employee   @relation("second_appr", fields: [second_appr], references: [id])
+  emp1_appr   employee?  @relation("first_appr", fields: [first_appr], references: [id])
+  emp2_appr   employee?  @relation("second_appr", fields: [second_appr], references: [id])
 
   @@index([first_appr], map: "dep_appr_first_appr_fkey")
   @@index([second_appr], map: "dep_appr_second_appr_fkey")

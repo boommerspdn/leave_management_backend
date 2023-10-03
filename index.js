@@ -8,6 +8,7 @@ const app = express();
 
 // Body Parser Middleware
 app.use(cors());
+app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
 // Home Page Route
