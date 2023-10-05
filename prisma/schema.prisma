@@ -44,7 +44,7 @@ model dep_appr {
   dep_id      Int        @unique
   first_appr  Int?
   second_appr Int?
-  dep         department @relation(fields: [dep_id], references: [id])
+  dep         department @relation(fields: [dep_id], references: [id], onDelete: Cascade)
   emp1_appr   employee?  @relation("first_appr", fields: [first_appr], references: [id])
   emp2_appr   employee?  @relation("second_appr", fields: [second_appr], references: [id])
 

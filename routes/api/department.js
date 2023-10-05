@@ -55,7 +55,7 @@ router.get("/:id", async (req, res) => {
 // Update department info
 router.put("/:id", async (req, res) => {
   const id = parseInt(req.params.id);
-  const { departmentName, headDep } = req.body;
+  const { departmentName } = req.body;
 
   try {
     const editDepartment = await prisma.department.update({
@@ -64,7 +64,6 @@ router.put("/:id", async (req, res) => {
       },
       data: {
         dep_name: departmentName,
-        head_dep: parseInt(headDep),
       },
     });
 
