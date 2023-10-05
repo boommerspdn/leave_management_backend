@@ -17,7 +17,6 @@ app.get("/", (req, res) => res.status(200).send("Leave Management API"));
 // Api Routes
 app.use("/api/AdminDashboard", require("./routes/api/AdminDashboard"));
 app.use("/api/ClockInOut", require("./routes/api/ClockInOut"));
-app.use("/api/DayOff", require("./routes/api/DayOff"));
 app.use("/api/holiday", require("./routes/api/holiday"));
 app.use("/api/department", require("./routes/api/department"));
 app.use(

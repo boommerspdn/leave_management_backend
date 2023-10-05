@@ -6,24 +6,22 @@ const prisma = new PrismaClient();
 
 // Create type quantity
 router.post("/", async (req, res) => {
-  const { typeId, yearId, quantity } = req.body;
+  const { typeId, year, quantity } = req.body;
 
   try {
     const createTypeQuantity = await prisma.type_quantity.create({
       data: {
         type_id: parseInt(typeId),
-        year_id: parseInt(yearId),
-        quantity: quantity ? parseInt(quantity) : 0,
+        year: parseInt(year),
+        quantity: parseInt(quantity),
       },
     });
 
-    res
-      .status(201)
-      .json({
-        status: 201,
-        message: "Record has been created",
-        createTypeQuantity,
-      });
+    res.status(201).json({
+      status: 201,
+      message: "Record has been created",
+      createTypeQuantity,
+    });
   } catch (e) {
     checkingValidationError(e, req, res);
   }
@@ -33,7 +31,6 @@ router.post("/", async (req, res) => {
 router.get("/", async (req, res) => {
   const allTypeQuantity = await prisma.type_quantity.findMany({
     include: {
-      year: true,
       type: true,
     },
   });
@@ -50,7 +47,6 @@ router.get("/:id", async (req, res) => {
         id: id,
       },
       include: {
-        year: true,
         type: true,
       },
     });
@@ -68,7 +64,7 @@ router.get("/:id", async (req, res) => {
 // Update type quantity info
 router.put("/:id", async (req, res) => {
   const id = parseInt(req.params.id);
-  const { typeId, yearId, quantity } = req.body;
+  const { typeId, year, quantity } = req.body;
 
   try {
     const editTypeQuantity = await prisma.type_quantity.update({
@@ -77,18 +73,16 @@ router.put("/:id", async (req, res) => {
       },
       data: {
         type_id: typeId ? parseInt(typeId) : undefined,
-        year_id: yearId ? parseInt(yearId) : undefined,
+        year: year ? parseInt(year) : undefined,
         quantity: quantity ? parseInt(quantity) : undefined,
       },
     });
 
-    res
-      .status(200)
-      .json({
-        status: 200,
-        message: `Record id ${id} successfully updated`,
-        editTypeQuantity,
-      });
+    res.status(200).json({
+      status: 200,
+      message: `Record id ${id} successfully updated`,
+      editTypeQuantity,
+    });
   } catch (e) {
     checkingValidationError(e, req, res);
   }

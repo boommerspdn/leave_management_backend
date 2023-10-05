@@ -55,6 +55,8 @@ model dep_appr {
 model leave_type {
   id            Int             @id @default(autoincrement())
   type_name     String          @db.VarChar(255)
+  fixed_quota   Int?
+  type          String
   approval_doc  approval_doc[]
   type_quantity type_quantity[]
 }
@@ -62,13 +64,11 @@ model leave_type {
 model type_quantity {
   id       Int        @id @default(autoincrement())
   type_id  Int
-  year_id  Int
+  year     Int
   quantity Int
   type     leave_type @relation(fields: [type_id], references: [id])
-  year     day_off    @relation(fields: [year_id], references: [id])
 
   @@index([type_id], map: "type_quantity_type_id_fkey")
-  @@index([year_id], map: "type_quantity_year_id_fkey")
 }
 
 model approval_doc {
@@ -109,11 +109,4 @@ model holiday {
   name       String    @db.VarChar(255)
   start_date DateTime  @unique @db.Date
   end_date   DateTime? @unique @db.Date
-}
-
-model day_off {
-  id            Int             @id @default(autoincrement())
-  service_year  Int
-  day_amount    Int
-  type_quantity type_quantity[]
 }
