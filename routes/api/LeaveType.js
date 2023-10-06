@@ -12,18 +12,16 @@ router.post("/", async (req, res) => {
     const createLeaveType = await prisma.leave_type.create({
       data: {
         type_name: typeName,
-        fixed_quota: fixedQuota,
+        fixed_quota: parseInt(fixedQuota),
         type: type,
       },
     });
 
-    res
-      .status(201)
-      .json({
-        status: 200,
-        message: "Record has been created",
-        createLeaveType,
-      });
+    res.status(201).json({
+      status: 200,
+      message: "Record has been created",
+      createLeaveType,
+    });
   } catch (e) {
     checkingValidationError(e, req, res);
   }
@@ -73,13 +71,11 @@ router.put("/:id", async (req, res) => {
       },
     });
 
-    res
-      .status(200)
-      .json({
-        status: 200,
-        message: `Record id ${id} successfully updated`,
-        editLeaveType,
-      });
+    res.status(200).json({
+      status: 200,
+      message: `Record id ${id} successfully updated`,
+      editLeaveType,
+    });
   } catch (e) {
     checkingValidationError(e, req, res);
   }
