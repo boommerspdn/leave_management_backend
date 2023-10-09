@@ -20,6 +20,7 @@ router.post("/", async (req, res) => {
     auth,
     dateEmployed,
     status,
+    role,
   } = req.body;
 
   try {
@@ -38,6 +39,7 @@ router.post("/", async (req, res) => {
         date_employed: dateEmployed && new Date(dateEmployed),
         auth: auth ? parseInt(auth) : 0,
         status: status,
+        role: role,
       },
     });
 
@@ -113,6 +115,7 @@ router.put("/:id", async (req, res) => {
     auth,
     dateEmployed,
     status,
+    role,
   } = req.body;
 
   try {
@@ -134,6 +137,7 @@ router.put("/:id", async (req, res) => {
         date_employed: dateEmployed ? new Date(dateEmployed) : undefined,
         auth: auth ? parseInt(auth) : 0,
         status: status || undefined,
+        role: role || undefined,
       },
     });
 
