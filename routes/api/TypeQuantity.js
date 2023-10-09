@@ -8,10 +8,16 @@ const prisma = new PrismaClient();
 router.post("/", async (req, res) => {
   const { typeId, year, quantity } = req.body;
 
+  const getMaxLeaveType = await prisma.leave_type.aggregate({
+    _max: {
+      id: true,
+    },
+  });
+
   try {
     const createTypeQuantity = await prisma.type_quantity.create({
       data: {
-        type_id: parseInt(typeId),
+        type_id: parseInt(typeId) || getMaxLeaveType._max.id,
         year: parseInt(year),
         quantity: parseInt(quantity),
       },
