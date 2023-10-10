@@ -64,7 +64,13 @@ router.post("/", upload.single("attachment"), async (req, res) => {
 
 // Read all approval docs
 router.get("/", async (req, res) => {
-  const allApprovalDocs = await prisma.approval_doc.findMany({});
+  const allApprovalDocs = await prisma.approval_doc.findMany({
+    include: {
+      emp: true,
+      dep: true,
+      type: true,
+    },
+  });
 
   res.status(200).json(allApprovalDocs);
 });
