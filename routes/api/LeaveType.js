@@ -29,7 +29,9 @@ router.post("/", async (req, res) => {
 
 // Read all leave type
 router.get("/", async (req, res) => {
-  const allLeaveType = await prisma.leave_type.findMany({});
+  const allLeaveType = await prisma.leave_type.findMany({
+    include: { type_quantity: true },
+  });
 
   res.status(200).json(allLeaveType);
 });
@@ -42,6 +44,7 @@ router.get("/:id", async (req, res) => {
       where: {
         id: id,
       },
+      include: { type_quantity: true },
     });
 
     if (singleLeaveType == null)
@@ -66,7 +69,7 @@ router.put("/:id", async (req, res) => {
       },
       data: {
         type_name: typeName || undefined,
-        fixed_quota: fixedQuota || undefined,
+        fixed_quota: fixedQuota ? parseInt(fixedQuota) : undefined,
         type: type || undefined,
       },
     });

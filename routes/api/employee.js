@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const { PrismaClient } = require("@prisma/client");
+const bcrypt = require("bcrypt");
 
 const prisma = new PrismaClient();
 
@@ -23,6 +24,9 @@ router.post("/", async (req, res) => {
     role,
   } = req.body;
 
+  const salt = bcrypt.genSaltSync(10);
+  const hash = await bcrypt.hash(password, salt);
+
   try {
     const createEmployee = await prisma.employee.create({
       data: {
@@ -35,7 +39,7 @@ router.post("/", async (req, res) => {
         gender: gender,
         address: address,
         username: username,
-        password: password,
+        password: hash,
         date_employed: dateEmployed && new Date(dateEmployed),
         auth: auth ? parseInt(auth) : 0,
         status: status,

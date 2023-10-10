@@ -67,7 +67,7 @@ model type_quantity {
   type_id  Int
   year     Int
   quantity Int
-  type     leave_type @relation(fields: [type_id], references: [id])
+  type     leave_type @relation(fields: [type_id], references: [id], onDelete: Cascade)
 
   @@index([type_id], map: "type_quantity_type_id_fkey")
 }

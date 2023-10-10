@@ -35,11 +35,7 @@ router.post("/", async (req, res) => {
 
 // Read all type quantitys
 router.get("/", async (req, res) => {
-  const allTypeQuantity = await prisma.type_quantity.findMany({
-    include: {
-      type: true,
-    },
-  });
+  const allTypeQuantity = await prisma.type_quantity.findMany({});
 
   res.status(200).json(allTypeQuantity);
 });
@@ -51,9 +47,6 @@ router.get("/:id", async (req, res) => {
     const singleTypeQuantity = await prisma.type_quantity.findUnique({
       where: {
         id: id,
-      },
-      include: {
-        type: true,
       },
     });
 
@@ -99,7 +92,7 @@ router.delete("/:id", async (req, res) => {
   const id = parseInt(req.params.id);
 
   try {
-    const deleteSingleDepartment = await prisma.department.delete({
+    const deleteSingleTypeQuantity = await prisma.type_quantity.delete({
       where: {
         id: id,
       },
