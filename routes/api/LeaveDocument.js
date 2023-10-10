@@ -75,6 +75,23 @@ router.get("/", async (req, res) => {
   res.status(200).json(allApprovalDocs);
 });
 
+router.get("/employee/:id", async (req, res) => {
+  const id = parseInt(req.params.id);
+
+  const allApprovalDocs = await prisma.approval_doc.findMany({
+    where: {
+      emp_id: id,
+    },
+    include: {
+      emp: true,
+      dep: true,
+      type: true,
+    },
+  });
+
+  res.status(200).json(allApprovalDocs);
+});
+
 // Read single approval doc
 router.get("/:id", async (req, res) => {
   const id = parseInt(req.params.id);
