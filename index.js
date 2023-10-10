@@ -29,6 +29,7 @@ app.use("/api/LeaveDashboard", require("./routes/api/LeaveDashboard"));
 app.use("/api/LeaveType", require("./routes/api/LeaveType"));
 app.use("/api/approver", require("./routes/api/approver"));
 app.use("/api/TypeQuantity", require("./routes/api/TypeQuantity"));
+app.use("/api/login", require("./routes/api/login"));
 
 // Global function for error handling
 global.checkingValidationError = (e, req, res) => {
