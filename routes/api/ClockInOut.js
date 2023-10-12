@@ -47,6 +47,18 @@ router.post("/", async (req, res) => {
   const { empId, date, clockIn, clockOut } = req.body;
 
   try {
+    const findRecord = await prisma.time_record.findFirst({
+      where: {
+        emp_id: parseInt(empId),
+        date: { lte: date },
+      },
+    });
+
+    if (findRecord) {
+      res.status(400).json({ message: "User already clock in" });
+      return;
+    }
+
     const createTimeRecord = await prisma.time_record.create({
       data: {
         emp_id: parseInt(empId),

@@ -96,9 +96,9 @@ model approval_doc {
 model time_record {
   id          Int       @id @default(autoincrement())
   emp_id      Int
-  date        DateTime  @db.Date
-  clock_in    DateTime  @db.Time(0)
-  clock_out   DateTime? @db.Time(0)
+  date        DateTime  @db.DateTime
+  clock_in    DateTime  @db.DateTime(0)
+  clock_out   DateTime? @db.DateTime(0)
   total_hours Decimal?  @db.Decimal(4, 2)
   emp         employee  @relation(fields: [emp_id], references: [id])
 
