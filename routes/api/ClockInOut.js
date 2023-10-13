@@ -46,11 +46,16 @@ const calculateTotalHours = async (clockIn, clockOut, id) => {
 router.post("/", async (req, res) => {
   const { empId, date, clockIn, clockOut } = req.body;
 
+  const startDate = new Date(date);
+  const endDate = new Date(date);
+  startDate.setHours(0, 0, 0, 0);
+  endDate.setHours(24, 0, 0, 0);
+
   try {
     const findRecord = await prisma.time_record.findFirst({
       where: {
         emp_id: parseInt(empId),
-        date: { lte: date },
+        date: { gte: startDate, lt: endDate },
       },
     });
 
