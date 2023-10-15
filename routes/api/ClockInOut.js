@@ -129,6 +129,39 @@ router.get("/:id", async (req, res) => {
   }
 });
 
+router.get("/employee/:id", async (req, res) => {
+  const id = parseInt(req.params.id);
+  try {
+    const timeRecord = await prisma.time_record.findMany({
+      where: {
+        emp_id: id,
+      },
+      select: {
+        id: true,
+        emp: {
+          select: {
+            first_name: true,
+            last_name: true,
+            dep: true,
+          },
+        },
+        date: true,
+        clock_in: true,
+        clock_out: true,
+        total_hours: true,
+      },
+    });
+
+    if (timeRecord == null)
+      return res
+        .status(404)
+        .json({ status: 404, msg: `no record with id of ${id}` });
+    res.status(200).json(timeRecord);
+  } catch (e) {
+    checkingValidationError(e, req, res);
+  }
+});
+
 // Update clock in and out info
 router.put("/", async (req, res) => {
   // const id = parseInt(req.params.id);
