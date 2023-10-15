@@ -22,7 +22,6 @@ router.get("/:empId", async (req, res) => {
 
     var serviceYear = moment().diff(employedDate.date_employed, "years");
 
-
     const allLeave = await prisma.approval_doc.aggregate({
       _count: {
         id: true,
@@ -30,6 +29,10 @@ router.get("/:empId", async (req, res) => {
       where: {
         emp_id: parseInt(requestedEmployee),
         OR: [{ status: "pending" }, { status: "approved" }],
+        end_date: {
+          gte: new Date(currentDate.getFullYear(), 0, 1),
+          lte: new Date(currentDate.getFullYear(), 11, 30),
+        },
       },
     });
 
@@ -40,17 +43,17 @@ router.get("/:empId", async (req, res) => {
     });
 
     const allYearQnty = new Array();
-    allLeaveType.map((item) => {
-      item.type_quantity.map((item) => {
+    allLeaveType.forEach((item) => {
+      item.type_quantity.forEach((item) => {
         allYearQnty.push(item.year);
       });
     });
     const maxYear = Math.max(...allYearQnty);
 
     const leaveQnty = new Array();
-    const allLeaveQnty = new Object();
+    const allLeaveQnty = new Array();
 
-    allLeaveType.map(async (type) => {
+    allLeaveType.forEach(async (type) => {
       const leaveCount = await prisma.approval_doc.aggregate({
         _count: {
           id: true,
@@ -58,26 +61,39 @@ router.get("/:empId", async (req, res) => {
         where: {
           emp_id: parseInt(requestedEmployee),
           type_id: type.id,
+          end_date: {
+            gte: new Date(currentDate.getFullYear(), 0, 1),
+            lte: new Date(currentDate.getFullYear(), 11, 30),
+          },
         },
       });
 
       if (type.type === "fixed") {
-        allLeaveQnty[type.id] = type.fixed_quota - leaveCount._count.id;
+        allLeaveQnty.push({
+          typeName: type.type_name,
+          amountLeft: type.fixed_quota - leaveCount._count.id,
+        });
       }
       if (type.type === "serviceYears") {
-        type.type_quantity.map((syType) => {
+        type.type_quantity.forEach((syType) => {
           if (syType.year === serviceYear) {
-            allLeaveQnty[type.id] = syType.quantity - leaveCount._count.id;
+            allLeaveQnty.push({
+              typeName: type.type_name,
+              amountLeft: syType.quantity - leaveCount._count.id,
+            });
           } else if (serviceYear > maxYear) {
             if (syType.year === maxYear) {
-              allLeaveQnty[type.id] = syType.quantity - leaveCount._count.id;
+              allLeaveQnty.push({
+                typeName: type.type_name,
+                amountLeft: syType.quantity - leaveCount._count.id,
+              });
             }
           }
         });
       }
     });
 
-    allLeaveType.map((type) => {
+    allLeaveType.forEach((type) => {
       if (type.type === "fixed") {
         leaveQnty.push(type.fixed_quota);
       }
@@ -110,7 +126,8 @@ router.get("/:empId", async (req, res) => {
         AND: {
           emp_id: parseInt(requestedEmployee),
           end_date: {
-            gt: currentDate, // if the end date and time is greater than current date and time
+            gte: new Date(currentDate.getFullYear(), 0, 1),
+            lte: new Date(currentDate.getFullYear(), 11, 30),
           },
           status: "pending",
         },
@@ -121,7 +138,6 @@ router.get("/:empId", async (req, res) => {
 
     // Get count of approved day off
     const approvedLeave = await prisma.approval_doc.aggregate({
-
       _count: {
         id: true,
       },
@@ -129,7 +145,8 @@ router.get("/:empId", async (req, res) => {
         AND: {
           emp_id: parseInt(requestedEmployee),
           end_date: {
-            gt: currentDate, // if the end date and time is greater than current date and time
+            gte: new Date(currentDate.getFullYear(), 0, 1),
+            lte: new Date(currentDate.getFullYear(), 11, 30),
           },
           status: "approved",
         },
@@ -140,7 +157,6 @@ router.get("/:empId", async (req, res) => {
 
     // Get count of rejected day off
     const rejectedLeave = await prisma.approval_doc.aggregate({
-
       _count: {
         id: true,
       },
@@ -148,7 +164,8 @@ router.get("/:empId", async (req, res) => {
         AND: {
           emp_id: parseInt(requestedEmployee),
           end_date: {
-            gt: currentDate, // if the end date and time is greater than current date and time
+            gte: new Date(currentDate.getFullYear(), 0, 1),
+            lte: new Date(currentDate.getFullYear(), 11, 30),
           },
           status: "rejected",
         },
@@ -164,7 +181,6 @@ router.get("/:empId", async (req, res) => {
       approvedLeaveAmount,
       rejectedLeaveAmount,
     });
-
   } catch (e) {
     checkingValidationError(e, req, res);
   }
