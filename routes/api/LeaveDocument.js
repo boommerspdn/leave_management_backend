@@ -35,7 +35,7 @@ router.post("/", upload.single("attachment"), async (req, res) => {
   const status = "pending";
 
   //   console.log(req.file);
-  //   console.log(req.body);
+  console.log(req.body);
 
   try {
     const createApprovalDoc = await prisma.approval_doc.create({
