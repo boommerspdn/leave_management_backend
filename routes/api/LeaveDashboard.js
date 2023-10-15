@@ -10,7 +10,7 @@ router.get("/:empId", async (req, res) => {
   const currentDate = new Date();
 
   try {
-    // Get day off left
+    // Get leave amount left
     const employedDate = await prisma.employee.findUnique({
       where: {
         id: parseInt(requestedEmployee),
@@ -22,30 +22,87 @@ router.get("/:empId", async (req, res) => {
 
     var serviceYear = moment().diff(employedDate.date_employed, "years");
 
-    // const dayOffs = await prisma.day_off.findMany()
 
-    const allDayOff = await prisma.approval_doc.aggregate({
+    const allLeave = await prisma.approval_doc.aggregate({
       _count: {
         id: true,
       },
       where: {
-        AND: {
-          emp_id: parseInt(requestedEmployee),
-          status: "approved",
-        },
+        emp_id: parseInt(requestedEmployee),
+        OR: [{ status: "pending" }, { status: "approved" }],
       },
     });
 
-    // const dayOffAmount = dayOffs.filter((dayOff) => {
-    //     return dayOff.service_year == serviceYear
-    // }).map((item) => {
-    //     return item.day_amount
-    // })
+    const allLeaveType = await prisma.leave_type.findMany({
+      include: {
+        type_quantity: true,
+      },
+    });
 
-    // const dayOffLeft = parseInt(dayOffAmount) - allDayOff._count.id;
+    const allYearQnty = new Array();
+    allLeaveType.map((item) => {
+      item.type_quantity.map((item) => {
+        allYearQnty.push(item.year);
+      });
+    });
+    const maxYear = Math.max(...allYearQnty);
+
+    const leaveQnty = new Array();
+    const allLeaveQnty = new Object();
+
+    allLeaveType.map(async (type) => {
+      const leaveCount = await prisma.approval_doc.aggregate({
+        _count: {
+          id: true,
+        },
+        where: {
+          emp_id: parseInt(requestedEmployee),
+          type_id: type.id,
+        },
+      });
+
+      if (type.type === "fixed") {
+        allLeaveQnty[type.id] = type.fixed_quota - leaveCount._count.id;
+      }
+      if (type.type === "serviceYears") {
+        type.type_quantity.map((syType) => {
+          if (syType.year === serviceYear) {
+            allLeaveQnty[type.id] = syType.quantity - leaveCount._count.id;
+          } else if (serviceYear > maxYear) {
+            if (syType.year === maxYear) {
+              allLeaveQnty[type.id] = syType.quantity - leaveCount._count.id;
+            }
+          }
+        });
+      }
+    });
+
+    allLeaveType.map((type) => {
+      if (type.type === "fixed") {
+        leaveQnty.push(type.fixed_quota);
+      }
+      if (type.type === "serviceYears") {
+        type.type_quantity.map((syType) => {
+          if (syType.year === serviceYear) {
+            leaveQnty.push(syType.quantity);
+          } else if (serviceYear > maxYear) {
+            if (syType.year === maxYear) {
+              leaveQnty.push(syType.quantity);
+            }
+          }
+        });
+      }
+    });
+
+    const leaveQntyAmount = leaveQnty.reduce(
+      (accumulator, currentValue) => accumulator + currentValue,
+      0
+    );
+
+    const leaveAvailableAmount = leaveQntyAmount - allLeave._count.id;
 
     // Get count of pending day off
-    const pendingDayOff = await prisma.approval_doc.aggregate({
+    const pendingLeave = await prisma.approval_doc.aggregate({
       _count: {
         id: true,
       },
@@ -60,8 +117,11 @@ router.get("/:empId", async (req, res) => {
       },
     });
 
+    const pendingLeaveAmount = pendingLeave._count.id;
+
     // Get count of approved day off
-    const approvedDayOff = await prisma.approval_doc.aggregate({
+    const approvedLeave = await prisma.approval_doc.aggregate({
+
       _count: {
         id: true,
       },
@@ -76,8 +136,11 @@ router.get("/:empId", async (req, res) => {
       },
     });
 
+    const approvedLeaveAmount = approvedLeave._count.id;
+
     // Get count of rejected day off
-    const rejectedDayOff = await prisma.approval_doc.aggregate({
+    const rejectedLeave = await prisma.approval_doc.aggregate({
+
       _count: {
         id: true,
       },
@@ -92,7 +155,16 @@ router.get("/:empId", async (req, res) => {
       },
     });
 
-    res.status(200).json({ pendingDayOff, approvedDayOff, rejectedDayOff });
+    const rejectedLeaveAmount = rejectedLeave._count.id;
+
+    res.status(200).json({
+      leaveAvailableAmount,
+      allLeaveQnty,
+      pendingLeaveAmount,
+      approvedLeaveAmount,
+      rejectedLeaveAmount,
+    });
+
   } catch (e) {
     checkingValidationError(e, req, res);
   }
