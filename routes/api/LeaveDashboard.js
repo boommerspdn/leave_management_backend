@@ -61,23 +61,15 @@ router.get("/:empId", async (req, res) => {
       });
 
       if (type.type === "fixed") {
-        leaveQnty.push(type.fixed_quota);
-
-        allLeaveQnty[type.type_name] = type.fixed_quota - leaveCount._count.id;
+        allLeaveQnty[type.id] = type.fixed_quota - leaveCount._count.id;
       }
       if (type.type === "serviceYears") {
         type.type_quantity.map((syType) => {
           if (syType.year === serviceYear) {
-            leaveQnty.push(syType.quantity);
-
-            allLeaveQnty[type.type_name] =
-              syType.quantity - leaveCount._count.id;
+            allLeaveQnty[type.id] = syType.quantity - leaveCount._count.id;
           } else if (serviceYear > maxYear) {
             if (syType.year === maxYear) {
-              leaveQnty.push(syType.quantity);
-
-              allLeaveQnty[type.type_name] =
-                syType.quantity - leaveCount._count.id;
+              allLeaveQnty[type.id] = syType.quantity - leaveCount._count.id;
             }
           }
         });
