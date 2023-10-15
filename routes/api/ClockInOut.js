@@ -130,28 +130,46 @@ router.get("/:id", async (req, res) => {
 });
 
 // Update clock in and out info
-router.put("/:id", async (req, res) => {
-  const id = parseInt(req.params.id);
+router.put("/", async (req, res) => {
+  // const id = parseInt(req.params.id);
   const { empId, date, clockIn, clockOut } = req.body;
 
+  const startDate = new Date(date);
+  const endDate = new Date(date);
+  startDate.setHours(0, 0, 0, 0);
+  endDate.setHours(24, 0, 0, 0);
+
   try {
+    const timeRecord = await prisma.time_record.findFirst({
+      where: {
+        emp_id: parseInt(empId),
+        date: { gte: startDate, lt: endDate },
+      },
+    });
+
+    if (timeRecord.clock_out != null) {
+      res.status(400).json({ message: "User already clock out" });
+      return;
+    }
+
     const editTimeRecord = await prisma.time_record.update({
       where: {
-        id: id,
+        id: timeRecord.id,
       },
       data: {
-        emp_id: parseInt(empId) || undefined,
-        date: date ? new Date(date) : undefined,
+        // emp_id: parseInt(empId) || undefined,
+        // date: date ? new Date(date) : undefined,
         clock_in: clockIn ? new Date(clockIn) : undefined,
         clock_out: clockOut ? new Date(clockOut) : undefined,
         total_hours:
-          (await calculateTotalHours(clockIn, clockOut, id)) || undefined,
+          (await calculateTotalHours(clockIn, clockOut, timeRecord.id)) ||
+          undefined,
       },
     });
 
     res.status(200).json({
       status: 200,
-      message: `Record id ${id} successfully updated`,
+      // message: `Record id ${id} successfully updated`,
       editTimeRecord,
     });
   } catch (e) {
