@@ -22,6 +22,7 @@ router.get("/:empId", async (req, res) => {
 
     var serviceYear = moment().diff(employedDate.date_employed, "years");
 
+
     const allLeave = await prisma.approval_doc.aggregate({
       _count: {
         id: true,
@@ -120,6 +121,7 @@ router.get("/:empId", async (req, res) => {
 
     // Get count of approved day off
     const approvedLeave = await prisma.approval_doc.aggregate({
+
       _count: {
         id: true,
       },
@@ -138,6 +140,7 @@ router.get("/:empId", async (req, res) => {
 
     // Get count of rejected day off
     const rejectedLeave = await prisma.approval_doc.aggregate({
+
       _count: {
         id: true,
       },
@@ -161,6 +164,7 @@ router.get("/:empId", async (req, res) => {
       approvedLeaveAmount,
       rejectedLeaveAmount,
     });
+
   } catch (e) {
     checkingValidationError(e, req, res);
   }
