@@ -47,8 +47,6 @@ router.post("/", async (req, res) => {
       },
     });
 
-    createDayOffTypeQuantity = await prisma.type_quantity.create({});
-
     res.status(201).json({
       status: 200,
       message: "Record has been created",
