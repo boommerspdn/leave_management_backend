@@ -23,8 +23,8 @@ router.get("/:empId", async (req, res) => {
     var serviceYear = moment().diff(employedDate.date_employed, "years");
 
     const allLeave = await prisma.approval_doc.aggregate({
-      _count: {
-        id: true,
+      _sum: {
+        amount: true,
       },
       where: {
         emp_id: parseInt(requestedEmployee),
@@ -55,8 +55,8 @@ router.get("/:empId", async (req, res) => {
 
     allLeaveType.forEach(async (type) => {
       const leaveCount = await prisma.approval_doc.aggregate({
-        _count: {
-          id: true,
+        _sum: {
+          amount: true,
         },
         where: {
           emp_id: parseInt(requestedEmployee),
@@ -71,7 +71,7 @@ router.get("/:empId", async (req, res) => {
       if (type.type === "fixed") {
         allLeaveQnty.push({
           typeName: type.type_name,
-          amountLeft: type.fixed_quota - leaveCount._count.id,
+          amountLeft: type.fixed_quota - leaveCount._sum.amount,
         });
       }
       if (type.type === "serviceYears") {
@@ -79,13 +79,13 @@ router.get("/:empId", async (req, res) => {
           if (syType.year === serviceYear) {
             allLeaveQnty.push({
               typeName: type.type_name,
-              amountLeft: syType.quantity - leaveCount._count.id,
+              amountLeft: syType.quantity - leaveCount._sum.amount,
             });
           } else if (serviceYear > maxYear) {
             if (syType.year === maxYear) {
               allLeaveQnty.push({
                 typeName: type.type_name,
-                amountLeft: syType.quantity - leaveCount._count.id,
+                amountLeft: syType.quantity - leaveCount._sum.amount,
               });
             }
           }
@@ -115,7 +115,7 @@ router.get("/:empId", async (req, res) => {
       0
     );
 
-    const leaveAvailableAmount = leaveQntyAmount - allLeave._count.id;
+    const leaveAvailableAmount = leaveQntyAmount - allLeave._sum.amount;
 
     // Get count of pending day off
     const pendingLeave = await prisma.approval_doc.aggregate({
