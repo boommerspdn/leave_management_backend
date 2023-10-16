@@ -54,35 +54,39 @@ const calculateDayAmount = async (_startDate, _endDate, id) => {
 };
 
 async function updateStatus(id) {
-  const getApprovalDoc = await prisma.approval_doc.findUnique({
-    where: { id: id },
-  });
+  try {
+    const getApprovalDoc = await prisma.approval_doc.findUnique({
+      where: { id: id },
+    });
 
-  var status = "pending";
-  const status_first_appr = getApprovalDoc.status_first_appr;
-  const status_second_appr = getApprovalDoc.status_second_appr;
+    var status = "pending";
+    const status_first_appr = getApprovalDoc.status_first_appr;
+    const status_second_appr = getApprovalDoc.status_second_appr;
 
-  if (status_second_appr == null) {
-    status = status_first_appr;
-  } else {
-    if (status_first_appr == "approved" && status_second_appr == "approved") {
-      status = "approved";
-    } else if (
-      status_first_appr == "rejected" ||
-      status_second_appr == "rejected"
-    ) {
-      status = "rejected";
+    if (status_second_appr == null) {
+      status = status_first_appr;
+    } else {
+      if (status_first_appr == "approved" && status_second_appr == "approved") {
+        status = "approved";
+      } else if (
+        status_first_appr == "rejected" ||
+        status_second_appr == "rejected"
+      ) {
+        status = "rejected";
+      }
     }
-  }
 
-  const editApprovalDoc = await prisma.approval_doc.update({
-    where: {
-      id: id,
-    },
-    data: {
-      status: status,
-    },
-  });
+    const editApprovalDoc = await prisma.approval_doc.update({
+      where: {
+        id: id,
+      },
+      data: {
+        status: status,
+      },
+    });
+  } catch (e) {
+    checkingValidationError(e, req, res);
+  }
 }
 
 // Create approval doc
@@ -101,13 +105,13 @@ router.post("/", upload.single("attachment"), async (req, res) => {
   const attachment = path.join(req.file.destination, req.file.filename);
   const status = "pending";
 
-  const deparment_approver = await prisma.dep_appr.findUnique({
-    where: {
-      dep_id: parseInt(depId),
-    },
-  });
-
   try {
+    const deparment_approver = await prisma.dep_appr.findUnique({
+      where: {
+        dep_id: parseInt(depId),
+      },
+    });
+
     const createApprovalDoc = await prisma.approval_doc.create({
       data: {
         emp_id: parseInt(empId),
@@ -141,54 +145,62 @@ router.get("/", async (req, res) => {
   const emp_id = parseInt(req.query.emp_id);
   const dep_id = parseInt(req.query.dep_id);
 
-  const deparment_approver = await prisma.dep_appr.findFirst({
-    where: {
-      dep_id: dep_id,
-      OR: [{ first_appr: emp_id }, { second_appr: emp_id }],
-    },
-  });
+  try {
+    const deparment_approver = await prisma.dep_appr.findFirst({
+      where: {
+        dep_id: dep_id,
+        OR: [{ first_appr: emp_id }, { second_appr: emp_id }],
+      },
+    });
 
-  if (!deparment_approver) {
-    res.status(400).json({ message: "deparment approver not found" });
-    return;
-  }
-
-  const allApprovalDocs = await prisma.approval_doc.findMany({
-    include: {
-      emp: true,
-      dep: true,
-      type: true,
-    },
-  });
-
-  if (deparment_approver.first_appr == emp_id) {
-    for (const approvalDoc of allApprovalDocs) {
-      approvalDoc.status = approvalDoc.status_first_appr;
+    if (!deparment_approver) {
+      res.status(400).json({ message: "deparment approver not found" });
+      return;
     }
-  } else {
-    for (const approvalDoc of allApprovalDocs) {
-      approvalDoc.status = approvalDoc.status_second_appr;
-    }
-  }
 
-  res.status(200).json(allApprovalDocs);
+    const allApprovalDocs = await prisma.approval_doc.findMany({
+      include: {
+        emp: true,
+        dep: true,
+        type: true,
+      },
+    });
+
+    if (deparment_approver.first_appr == emp_id) {
+      for (const approvalDoc of allApprovalDocs) {
+        approvalDoc.status = approvalDoc.status_first_appr;
+      }
+    } else {
+      for (const approvalDoc of allApprovalDocs) {
+        approvalDoc.status = approvalDoc.status_second_appr;
+      }
+    }
+
+    res.status(200).json(allApprovalDocs);
+  } catch (e) {
+    checkingValidationError(e, req, res);
+  }
 });
 
 router.get("/employee/:id", async (req, res) => {
   const id = parseInt(req.params.id);
 
-  const allApprovalDocs = await prisma.approval_doc.findMany({
-    where: {
-      emp_id: id,
-    },
-    include: {
-      emp: true,
-      dep: true,
-      type: true,
-    },
-  });
+  try {
+    const allApprovalDocs = await prisma.approval_doc.findMany({
+      where: {
+        emp_id: id,
+      },
+      include: {
+        emp: true,
+        dep: true,
+        type: true,
+      },
+    });
 
-  res.status(200).json(allApprovalDocs);
+    res.status(200).json(allApprovalDocs);
+  } catch (e) {
+    checkingValidationError(e, req, res);
+  }
 });
 
 // Read single approval doc
@@ -268,24 +280,24 @@ router.put("/status/:id", async (req, res) => {
 
   const { status } = req.body;
 
-  const deparment_approver = await prisma.dep_appr.findFirst({
-    where: {
-      dep_id: dep_id,
-      OR: [{ first_appr: emp_id }, { second_appr: emp_id }],
-    },
-  });
-
-  if (!deparment_approver) {
-    res.status(400).json({ message: "deparment approver not found" });
-    return;
-  }
-
-  var isFirstAppr = false;
-  if (deparment_approver.first_appr == emp_id) {
-    isFirstAppr = true;
-  }
-
   try {
+    const deparment_approver = await prisma.dep_appr.findFirst({
+      where: {
+        dep_id: dep_id,
+        OR: [{ first_appr: emp_id }, { second_appr: emp_id }],
+      },
+    });
+
+    if (!deparment_approver) {
+      res.status(400).json({ message: "deparment approver not found" });
+      return;
+    }
+
+    var isFirstAppr = false;
+    if (deparment_approver.first_appr == emp_id) {
+      isFirstAppr = true;
+    }
+
     const editApprovalDoc = await prisma.approval_doc.update({
       where: {
         id: id,
