@@ -25,6 +25,38 @@ const calculateDayAmount = (_startDate, _endDate) => {
   return (endDate.getTime() - startDate.getTime()) / 1000 / 60 / 60 / 24 + 1;
 };
 
+async function updateStatus(id) {
+  const getApprovalDoc = await prisma.approval_doc.findUnique({
+    where: { id: id },
+  });
+
+  var status = "pending";
+  const status_first_appr = getApprovalDoc.status_first_appr;
+  const status_second_appr = getApprovalDoc.status_second_appr;
+
+  if (status_second_appr == null) {
+    status = status_first_appr;
+  } else {
+    if (status_first_appr == "approved" && status_second_appr == "approved") {
+      status = "approved";
+    } else if (
+      status_first_appr == "rejected" ||
+      status_second_appr == "rejected"
+    ) {
+      status = "rejected";
+    }
+  }
+
+  const editApprovalDoc = await prisma.approval_doc.update({
+    where: {
+      id: id,
+    },
+    data: {
+      status: status,
+    },
+  });
+}
+
 // Create approval doc
 router.post("/", upload.single("attachment"), async (req, res) => {
   const {
@@ -41,6 +73,12 @@ router.post("/", upload.single("attachment"), async (req, res) => {
   const attachment = path.join(req.file.destination, req.file.filename);
   const status = "pending";
 
+  const deparment_approver = await prisma.dep_appr.findUnique({
+    where: {
+      dep_id: parseInt(depId),
+    },
+  });
+
   try {
     const createApprovalDoc = await prisma.approval_doc.create({
       data: {
@@ -55,8 +93,11 @@ router.post("/", upload.single("attachment"), async (req, res) => {
         backup_contact: backupContact,
         attachment: attachment,
         status: status,
+        status_first_appr: deparment_approver.first_appr ? "pending" : null,
+        status_second_appr: deparment_approver.second_appr ? "pending" : null,
       },
     });
+
     res.status(201).json({
       status: 201,
       message: "Record has been created",
@@ -69,6 +110,21 @@ router.post("/", upload.single("attachment"), async (req, res) => {
 
 // Read all approval docs
 router.get("/", async (req, res) => {
+  const emp_id = parseInt(req.query.emp_id);
+  const dep_id = parseInt(req.query.dep_id);
+
+  const deparment_approver = await prisma.dep_appr.findFirst({
+    where: {
+      dep_id: dep_id,
+      OR: [{ first_appr: emp_id }, { second_appr: emp_id }],
+    },
+  });
+
+  if (!deparment_approver) {
+    res.status(400).json({ message: "deparment approver not found" });
+    return;
+  }
+
   const allApprovalDocs = await prisma.approval_doc.findMany({
     include: {
       emp: true,
@@ -76,6 +132,16 @@ router.get("/", async (req, res) => {
       type: true,
     },
   });
+
+  if (deparment_approver.first_appr == emp_id) {
+    for (const approvalDoc of allApprovalDocs) {
+      approvalDoc.status = approvalDoc.status_first_appr;
+    }
+  } else {
+    for (const approvalDoc of allApprovalDocs) {
+      approvalDoc.status = approvalDoc.status_second_appr;
+    }
+  }
 
   res.status(200).json(allApprovalDocs);
 });
@@ -151,6 +217,53 @@ router.put("/:id", async (req, res) => {
         status: status || undefined,
       },
     });
+
+    res.status(200).json({
+      status: 200,
+      message: `Record id ${id} successfully updated`,
+      editApprovalDoc,
+    });
+  } catch (e) {
+    checkingValidationError(e, req, res);
+  }
+});
+
+router.put("/status/:id", async (req, res) => {
+  const id = parseInt(req.params.id);
+  const emp_id = parseInt(req.query.emp_id);
+  const dep_id = parseInt(req.query.dep_id);
+
+  const { status } = req.body;
+
+  const deparment_approver = await prisma.dep_appr.findFirst({
+    where: {
+      dep_id: dep_id,
+      OR: [{ first_appr: emp_id }, { second_appr: emp_id }],
+    },
+  });
+
+  if (!deparment_approver) {
+    res.status(400).json({ message: "deparment approver not found" });
+    return;
+  }
+
+  var isFirstAppr = false;
+  if (deparment_approver.first_appr == emp_id) {
+    isFirstAppr = true;
+  }
+
+  try {
+    const editApprovalDoc = await prisma.approval_doc.update({
+      where: {
+        id: id,
+      },
+      data: {
+        status_first_appr: isFirstAppr ? status : undefined,
+        status_second_appr: !isFirstAppr ? status : undefined,
+      },
+    });
+
+    updateStatus(id);
 
     res.status(200).json({
       status: 200,
