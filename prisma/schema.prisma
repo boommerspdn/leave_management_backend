@@ -79,6 +79,7 @@ model approval_doc {
   type_id        Int
   start_date     DateTime    @db.DateTime(0)
   end_date       DateTime    @db.DateTime(0)
+  amount         Int
   reason         String      @db.VarChar(255)
   written_place  String      @db.VarChar(255)
   backup_contact String      @db.VarChar(255)

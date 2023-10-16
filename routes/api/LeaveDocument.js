@@ -18,6 +18,13 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage: storage });
 
+const calculateDayAmount = (_startDate, _endDate) => {
+  const startDate = new Date(_startDate);
+  const endDate = new Date(_endDate);
+
+  return (endDate.getTime() - startDate.getTime()) / 1000 / 60 / 60 / 24 + 1;
+};
+
 // Create approval doc
 router.post("/", upload.single("attachment"), async (req, res) => {
   const {
@@ -34,9 +41,6 @@ router.post("/", upload.single("attachment"), async (req, res) => {
   const attachment = path.join(req.file.destination, req.file.filename);
   const status = "pending";
 
-  //   console.log(req.file);
-  console.log(req.body);
-
   try {
     const createApprovalDoc = await prisma.approval_doc.create({
       data: {
@@ -45,6 +49,7 @@ router.post("/", upload.single("attachment"), async (req, res) => {
         type_id: parseInt(typeId),
         start_date: new Date(startDate),
         end_date: new Date(endDate),
+        amount: calculateDayAmount(startDate, endDate),
         reason: reason,
         written_place: writtenPlace,
         backup_contact: backupContact,

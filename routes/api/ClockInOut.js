@@ -12,7 +12,6 @@ const calculateTotalHours = async (clockIn, clockOut, id) => {
     var endTime = new moment(new Date(clockOut));
     var duration = moment.duration(endTime.diff(startTime));
 
-    // console.log('do first function')
     return (totalHours = duration.asHours());
   } else if (clockIn || clockOut) {
     var getClockInOutValue = await prisma.time_record.findUnique({
