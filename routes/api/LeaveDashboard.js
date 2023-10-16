@@ -70,6 +70,7 @@ router.get("/:empId", async (req, res) => {
 
       if (type.type === "fixed") {
         allLeaveQnty.push({
+          id: type.id,
           typeName: type.type_name,
           amountLeft: type.fixed_quota - leaveCount._sum.amount,
         });
@@ -78,12 +79,14 @@ router.get("/:empId", async (req, res) => {
         type.type_quantity.forEach((syType) => {
           if (syType.year === serviceYear) {
             allLeaveQnty.push({
+              id: type.id,
               typeName: type.type_name,
               amountLeft: syType.quantity - leaveCount._sum.amount,
             });
           } else if (serviceYear > maxYear) {
             if (syType.year === maxYear) {
               allLeaveQnty.push({
+                id: type.id,
                 typeName: type.type_name,
                 amountLeft: syType.quantity - leaveCount._sum.amount,
               });
