@@ -63,7 +63,9 @@ async function updateStatus(id) {
     const status_first_appr = getApprovalDoc.status_first_appr;
     const status_second_appr = getApprovalDoc.status_second_appr;
 
-    if (status_second_appr == null) {
+    if (!status_first_appr && !status_second_appr) {
+      status = "approved";
+    } else if (status_second_appr == null) {
       status = status_first_appr;
     } else {
       if (status_first_appr == "approved" && status_second_appr == "approved") {
@@ -103,7 +105,7 @@ router.post("/", upload.single("attachment"), async (req, res) => {
   } = req.body;
 
   const attachment = path.join(req.file.destination, req.file.filename);
-  const status = "pending";
+  var status = "pending";
 
   try {
     const deparment_approver = await prisma.dep_appr.findUnique({
@@ -111,6 +113,10 @@ router.post("/", upload.single("attachment"), async (req, res) => {
         dep_id: parseInt(depId),
       },
     });
+
+    if (!deparment_approver.first_appr && !deparment_approver.second_appr) {
+      status = "approved";
+    }
 
     const createApprovalDoc = await prisma.approval_doc.create({
       data: {
