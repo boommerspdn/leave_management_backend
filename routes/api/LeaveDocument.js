@@ -213,7 +213,29 @@ router.get("/employee/:id", async (req, res) => {
       },
     });
 
-    res.status(200).json(allApprovalDocs);
+    const dep_appr = await prisma.dep_appr.findUnique({
+      where: {
+        dep_id: allApprovalDocs[0].dep_id,
+      },
+      select: {
+        emp1_appr: {
+          select: {
+            first_name: true,
+            last_name: true,
+          },
+        },
+        emp2_appr: {
+          select: {
+            first_name: true,
+            last_name: true,
+          },
+        },
+      },
+    });
+
+    res
+      .status(200)
+      .json({ allApprovalDocs: allApprovalDocs, dep_appr: dep_appr });
   } catch (e) {
     checkingValidationError(e, req, res);
   }
