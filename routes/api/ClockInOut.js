@@ -105,6 +105,29 @@ router.get("/", async (req, res) => {
     },
   });
 
+  const workHour = await prisma.work_hour.findUnique({
+    where: {
+      id: 1,
+    },
+  });
+
+  for (let timeRecord of allTimeRecords) {
+    const startTime = new Date(workHour.start_time);
+    const clockIn = new Date(timeRecord.clock_in);
+
+    startTime.setDate(clockIn.getDate());
+    startTime.setMonth(clockIn.getMonth());
+    startTime.setFullYear(clockIn.getFullYear());
+    startTime.setMinutes(startTime.getMinutes() + clockIn.getTimezoneOffset());
+
+    const diffTime = clockIn - startTime;
+    if (diffTime > 0) {
+      timeRecord.late_time = new Date(diffTime);
+    } else {
+      timeRecord.late_time = new Date(0);
+    }
+  }
+
   res.status(200).json(allTimeRecords);
 });
 
