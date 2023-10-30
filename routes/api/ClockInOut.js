@@ -88,47 +88,60 @@ router.post("/", async (req, res) => {
 
 // Read all clock in and out
 router.get("/", async (req, res) => {
-  const allTimeRecords = await prisma.time_record.findMany({
-    select: {
-      id: true,
-      emp: {
-        select: {
-          first_name: true,
-          last_name: true,
-          dep: true,
+  try {
+    const allTimeRecords = await prisma.time_record.findMany({
+      select: {
+        id: true,
+        emp: {
+          select: {
+            first_name: true,
+            last_name: true,
+            dep: true,
+          },
         },
+        date: true,
+        clock_in: true,
+        clock_out: true,
+        total_hours: true,
       },
-      date: true,
-      clock_in: true,
-      clock_out: true,
-      total_hours: true,
-    },
-  });
+    });
 
-  const workHour = await prisma.work_hour.findUnique({
-    where: {
-      id: 1,
-    },
-  });
+    const workHour = await prisma.work_hour.findUnique({
+      where: {
+        id: 1,
+      },
+    });
 
-  for (let timeRecord of allTimeRecords) {
-    const startTime = new Date(workHour.start_time);
-    const clockIn = new Date(timeRecord.clock_in);
-
-    startTime.setDate(clockIn.getDate());
-    startTime.setMonth(clockIn.getMonth());
-    startTime.setFullYear(clockIn.getFullYear());
-    startTime.setMinutes(startTime.getMinutes() + clockIn.getTimezoneOffset());
-
-    const diffTime = clockIn - startTime;
-    if (diffTime > 0) {
-      timeRecord.late_time = new Date(diffTime);
-    } else {
-      timeRecord.late_time = new Date(0);
+    if (!workHour) {
+      for (let timeRecord of allTimeRecords) {
+        timeRecord.late_time = new Date(0);
+      }
+      return res.status(200).json(allTimeRecords);
     }
-  }
 
-  res.status(200).json(allTimeRecords);
+    for (let timeRecord of allTimeRecords) {
+      const startTime = new Date(workHour.start_time);
+      const clockIn = new Date(timeRecord.clock_in);
+
+      startTime.setDate(clockIn.getDate());
+      startTime.setMonth(clockIn.getMonth());
+      startTime.setFullYear(clockIn.getFullYear());
+      startTime.setMinutes(
+        startTime.getMinutes() + clockIn.getTimezoneOffset()
+      );
+
+      const diffTime = clockIn - startTime;
+      if (diffTime > 0) {
+        timeRecord.late_time = new Date(diffTime);
+      } else {
+        timeRecord.late_time = new Date(0);
+      }
+    }
+
+    res.status(200).json(allTimeRecords);
+  } catch (e) {
+    checkingValidationError(e, req, res);
+  }
 });
 
 // Read single clock in and out
@@ -154,7 +167,7 @@ router.get("/:id", async (req, res) => {
 router.get("/employee/:id", async (req, res) => {
   const id = parseInt(req.params.id);
   try {
-    const timeRecord = await prisma.time_record.findMany({
+    const timeRecords = await prisma.time_record.findMany({
       where: {
         emp_id: id,
       },
@@ -174,11 +187,43 @@ router.get("/employee/:id", async (req, res) => {
       },
     });
 
-    if (timeRecord == null)
+    const workHour = await prisma.work_hour.findUnique({
+      where: {
+        id: 1,
+      },
+    });
+
+    if (!workHour) {
+      for (let timeRecord of timeRecords) {
+        timeRecord.late_time = new Date(0);
+      }
+      return res.status(200).json(timeRecords);
+    }
+
+    for (let timeRecord of timeRecords) {
+      const startTime = new Date(workHour.start_time);
+      const clockIn = new Date(timeRecord.clock_in);
+
+      startTime.setDate(clockIn.getDate());
+      startTime.setMonth(clockIn.getMonth());
+      startTime.setFullYear(clockIn.getFullYear());
+      startTime.setMinutes(
+        startTime.getMinutes() + clockIn.getTimezoneOffset()
+      );
+
+      const diffTime = clockIn - startTime;
+      if (diffTime > 0) {
+        timeRecord.late_time = new Date(diffTime);
+      } else {
+        timeRecord.late_time = new Date(0);
+      }
+    }
+
+    if (timeRecords == null)
       return res
         .status(404)
         .json({ status: 404, msg: `no record with id of ${id}` });
-    res.status(200).json(timeRecord);
+    res.status(200).json(timeRecords);
   } catch (e) {
     checkingValidationError(e, req, res);
   }
