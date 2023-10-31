@@ -24,7 +24,7 @@ const emailContent = (
     <p>Date: ${startDate.toLocaleDateString(
       "en-GB"
     )} - ${endDate.toLocaleDateString("en-GB")}</p>
-    <p>Sent at: ${sentAt.toLocaleString("en-GB")}</p>
+    <p>Sent At: ${sentAt.toLocaleString("en-GB")}</p>
     <p>Reason: ${reason}</p>
     <p>Backup Contact: ${backupContact}</p>
     </div>`;
@@ -33,7 +33,7 @@ const emailContent = (
     <div style="color: black;">
     <h1>Hi ${receiver}</h1>
     <p>${sender} has ${method} leave approval ${docId}. You can view or review it if you are an approver at Syaco Leave Management.</p>
-    <p>Reviewed at: ${sentAt.toLocaleString("en-GB")}</p>
+    <p>Reviewed At: ${sentAt.toLocaleString("en-GB")}</p>
     <p>First Approver Status: ${capitalize(firstStatus)}</p>
     <p>Second Approver Status: ${capitalize(secondStatus)}</p>
     </div>`;
