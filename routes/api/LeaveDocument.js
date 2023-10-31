@@ -204,6 +204,7 @@ router.post("/", upload.single("attachment"), async (req, res) => {
         approverEmail.appr_email,
         "Leave Request Pending",
         emailContent(
+          "request",
           approverEmail.appr_name,
           `${senderName.first_name} ${senderName.last_name}`,
           createApprovalDoc.start_date,
@@ -386,6 +387,7 @@ router.get("/:id", async (req, res) => {
             },
           },
         },
+        type: { select: { type_name: true } },
       },
     });
 
@@ -487,22 +489,31 @@ router.put("/status/:id", async (req, res) => {
       },
     });
 
+    updateStatus(id);
+
     // Get dep appr
     const depAppr = await prisma.dep_appr.findFirst({
       where: { dep_id: 1 },
-    });
-
-    // Get latest doc for notification
-    const lastDocument = await prisma.approval_doc.findFirst({
-      take: -1,
-      select: { id: true },
+      select: {
+        id: true,
+        first_appr: true,
+        second_appr: true,
+        emp1_appr: {
+          select: { id: true, first_name: true, last_name: true, email: true },
+        },
+        emp2_appr: {
+          select: { id: true, first_name: true, last_name: true, email: true },
+        },
+      },
     });
 
     // Get doc sender
     const documentSender = await prisma.approval_doc.findFirst({
       where: { id: id },
       select: {
-        emp: { select: { id: true, first_name: true, last_name: true } },
+        emp: {
+          select: { id: true, first_name: true, last_name: true, email: true },
+        },
       },
     });
 
@@ -522,7 +533,57 @@ router.put("/status/:id", async (req, res) => {
       },
     });
 
-    updateStatus(id);
+    // Get Notification sender
+    const getNotificationSender = await prisma.employee.findUnique({
+      where: { id: emp_id },
+      select: { id: true, first_name: true, last_name: true, email: true },
+    });
+
+    // Get targeted doc info for email
+    const getTargetedDoc = await prisma.approval_doc.findUnique({
+      where: { id: id },
+    });
+
+    const approverEmails = [
+      {
+        appr_email: documentSender.emp.email,
+        appr_name: `${documentSender.emp.first_name} ${documentSender.emp.last_name}`,
+      },
+      {
+        appr_email: isFirstAppr
+          ? depAppr.emp2_appr.email
+          : !isFirstAppr && depAppr.emp1_appr.email,
+        appr_name: `${
+          isFirstAppr
+            ? depAppr.emp2_appr.first_name
+            : !isFirstAppr && depAppr.emp1_appr.first_name
+        } ${
+          isFirstAppr
+            ? depAppr.emp2_appr.last_name
+            : !isFirstAppr && depAppr.emp1_appr.last_name
+        }`,
+      },
+    ];
+
+    approverEmails.forEach((approverEmail) => {
+      sendEmail(
+        approverEmail.appr_email,
+        `Leave Request approved`,
+        emailContent(
+          status,
+          approverEmail.appr_name,
+          `${getNotificationSender.first_name} ${getNotificationSender.last_name}`,
+          "",
+          "",
+          new Date(),
+          "",
+          "",
+          id,
+          getTargetedDoc.status_first_appr,
+          getTargetedDoc.status_second_appr
+        )
+      );
+    });
 
     res.status(200).json({
       status: 200,

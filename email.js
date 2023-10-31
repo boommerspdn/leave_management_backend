@@ -1,27 +1,43 @@
 const nodemailer = require("nodemailer");
 
-const reviewLink = "https://example.com/review"; // Replace with your review link
+const capitalize = (string) => string.charAt(0).toUpperCase() + string.slice(1);
 
 const emailContent = (
+  method,
   receiver,
   sender,
   startDate,
   endDate,
   sentAt,
   reason,
-  backupContact
+  backupContact,
+  docId,
+  firstStatus,
+  secondStatus
 ) => {
-  return `
-<h1>Hi ${receiver}</h1>
-<p>You have a new pending leave document to review. Please Review it at Syaco Leave Management.</p>
-<p>Sender: ${sender}</p>
-<p>Date: ${startDate.toLocaleDateString(
-    "en-GB"
-  )} - ${endDate.toLocaleDateString("en-GB")}</p>
-<p>Sent at: ${sentAt.toLocaleString("en-GB")}</p>
-<p>Reason: ${reason}</p>
-<p>Backup Contact: ${backupContact}</p>
-`;
+  if (method === "request") {
+    return `
+    <div style="color: black;">
+    <h1>Hi ${receiver}</h1>
+    <p>You have a new pending leave document to review. Please Review it at Syaco Leave Management.</p>
+    <p>Sender: ${sender}</p>
+    <p>Date: ${startDate.toLocaleDateString(
+      "en-GB"
+    )} - ${endDate.toLocaleDateString("en-GB")}</p>
+    <p>Sent at: ${sentAt.toLocaleString("en-GB")}</p>
+    <p>Reason: ${reason}</p>
+    <p>Backup Contact: ${backupContact}</p>
+    </div>`;
+  } else {
+    return `
+    <div style="color: black;">
+    <h1>Hi ${receiver}</h1>
+    <p>${sender} has ${method} leave approval ${docId}. You can view or review it if you are an approver at Syaco Leave Management.</p>
+    <p>Reviewed at: ${sentAt.toLocaleString("en-GB")}</p>
+    <p>First Approver Status: ${capitalize(firstStatus)}</p>
+    <p>Second Approver Status: ${capitalize(secondStatus)}</p>
+    </div>`;
+  }
 };
 
 const transporter = nodemailer.createTransport({
