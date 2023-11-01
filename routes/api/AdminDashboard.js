@@ -97,9 +97,11 @@ router.get("/", async (req, res) => {
   }
 });
 
-router.get("/day", async (req, res) => {
-  const startDate = new Date();
-  const endDate = new Date();
+router.post("/day", async (req, res) => {
+  const { date } = req.body;
+
+  const startDate = new Date(date);
+  const endDate = new Date(date);
 
   startDate.setHours(0, 0, 0, 0);
   endDate.setHours(24, 0, 0, 0);
