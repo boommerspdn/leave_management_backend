@@ -27,7 +27,14 @@ router.post("/", async (req, res) => {
 
 // Read all departments
 router.get("/", async (req, res) => {
-  const allDepartment = await prisma.department.findMany({});
+  const allDepartment = await prisma.dep_appr.findMany({
+    select: {
+      dep_id: true,
+      dep: { select: { dep_name: true } },
+      emp1_appr: { select: { first_name: true, last_name: true } },
+      emp2_appr: { select: { first_name: true, last_name: true } },
+    },
+  });
 
   res.status(200).json(allDepartment);
 });
