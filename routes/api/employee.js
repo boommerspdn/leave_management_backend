@@ -81,6 +81,21 @@ router.get("/getName", async (req, res) => {
   res.status(200).json(allEmployee);
 });
 
+router.get("/getAppr", async (req, res) => {
+  const allAppr = await prisma.employee.findMany({
+    select: {
+      id: true,
+      first_name: true,
+      last_name: true,
+    },
+    where: {
+      role: "admin",
+    },
+  });
+
+  res.status(200).json(allAppr);
+});
+
 // Read single employee
 router.get("/:id", async (req, res) => {
   const id = parseInt(req.params.id);
@@ -91,6 +106,8 @@ router.get("/:id", async (req, res) => {
       },
       include: {
         dep: true,
+        dep_appr1: true,
+        dep_appr2: true,
       },
     });
 

@@ -8,26 +8,29 @@ datasource db {
 }
 
 model employee {
-  id            Int            @id @default(autoincrement())
-  first_name    String         @db.VarChar(255)
-  last_name     String         @db.VarChar(255)
-  birth_date    DateTime       @default(now()) @db.DateTime()
-  email         String         @db.VarChar(255)
-  gender        String         @db.VarChar(255)
-  address       String         @db.VarChar(255)
-  username      String         @unique @db.VarChar(255)
-  password      String         @db.VarChar(255)
-  auth          Int
-  dep_id        Int?
-  date_employed DateTime       @db.DateTime()
-  phone         String         @db.VarChar(255)
-  status        String         @db.VarChar(255)
-  role          String
-  approval_docs approval_doc[]
-  dep_appr1     dep_appr[]     @relation("first_appr")
-  dep_appr2     dep_appr[]     @relation("second_appr")
-  dep           department?    @relation(fields: [dep_id], references: [id], onDelete: SetNull)
-  time_record   time_record[]
+  id              Int            @id @default(autoincrement())
+  first_name      String         @db.VarChar(255)
+  last_name       String         @db.VarChar(255)
+  birth_date      DateTime       @default(now()) @db.DateTime(0)
+  email           String         @db.VarChar(255)
+  gender          String         @db.VarChar(255)
+  address         String         @db.VarChar(255)
+  username        String         @unique @db.VarChar(255)
+  password        String         @db.VarChar(255)
+  auth            Int
+  dep_id          Int?
+  date_employed   DateTime       @db.DateTime(0)
+  phone           String         @db.VarChar(255)
+  status          String         @db.VarChar(255)
+  role            String
+  approval_docs   approval_doc[]
+  dep_appr1       dep_appr[]     @relation("first_appr")
+  dep_appr2       dep_appr[]     @relation("second_appr")
+  dep             department?    @relation(fields: [dep_id], references: [id])
+  first_receiver  notification[] @relation("first_receiver")
+  second_receiver notification[] @relation("second_receiver")
+  sender          notification[] @relation("sender")
+  time_record     time_record[]
 
   @@index([dep_id], map: "employee_dep_id_fkey")
 }
@@ -73,23 +76,26 @@ model type_quantity {
 }
 
 model approval_doc {
-  id                 Int         @id @default(autoincrement())
+  id                 Int            @id @default(autoincrement())
   emp_id             Int
   dep_id             Int?
   type_id            Int
-  start_date         DateTime    @db.DateTime(0)
-  end_date           DateTime    @db.DateTime(0)
+  start_date         DateTime       @db.DateTime(0)
+  end_date           DateTime       @db.DateTime(0)
   amount             Int
-  reason             String      @db.VarChar(255)
-  written_place      String      @db.VarChar(255)
-  backup_contact     String      @db.VarChar(255)
-  attachment         String      @db.VarChar(255)
-  status             String      @db.VarChar(255)
-  status_first_appr  String?     @db.VarChar(255)
-  status_second_appr String?     @db.VarChar(255)
-  dep                department? @relation(fields: [dep_id], references: [id], onDelete: SetNull)
-  emp                employee    @relation(fields: [emp_id], references: [id])
-  type               leave_type  @relation(fields: [type_id], references: [id])
+  reason             String         @db.VarChar(255)
+  written_place      String         @db.VarChar(255)
+  backup_contact     String         @db.VarChar(255)
+  attachment         String?        @db.VarChar(255)
+  status             String         @db.VarChar(255)
+  status_first_appr  String?        @db.VarChar(255)
+  first_appr_at      DateTime?      @db.DateTime(0)
+  status_second_appr String?        @db.VarChar(255)
+  second_appr_at     DateTime?      @db.DateTime(0)
+  dep                department?    @relation(fields: [dep_id], references: [id])
+  emp                employee       @relation(fields: [emp_id], references: [id])
+  type               leave_type     @relation(fields: [type_id], references: [id])
+  notification       notification[] @relation("doc_id")
 
   @@index([dep_id], map: "approval_doc_dep_id_fkey")
   @@index([emp_id], map: "approval_doc_emp_id_fkey")
@@ -115,8 +121,29 @@ model holiday {
   end_date   DateTime? @unique @db.DateTime(0)
 }
 
+model notification {
+  id              Int          @id @default(autoincrement())
+  noti_type       String       @db.VarChar(255)
+  sender_id       Int
+  first_receiver  Int?
+  second_receiver Int?
+  doc_id          Int
+  created_at      DateTime     @default(now()) @db.DateTime(0)
+  is_seen_first   Int
+  is_seen_second  Int
+  docId           approval_doc @relation("doc_id", fields: [doc_id], references: [id], onDelete: Cascade)
+  firstReceiver   employee?    @relation("first_receiver", fields: [first_receiver], references: [id])
+  secondReceiver  employee?    @relation("second_receiver", fields: [second_receiver], references: [id])
+  sender          employee     @relation("sender", fields: [sender_id], references: [id])
+
+  @@index([doc_id], map: "notification_doc_id_fkey")
+  @@index([first_receiver], map: "notification_first_receiver_fkey")
+  @@index([second_receiver], map: "notification_second_receiver_fkey")
+  @@index([sender_id], map: "notification_sender_id_fkey")
+}
+
 model work_hour {
-  id           Int      @id
-  start_time   DateTime @db.Time(0)
-  end_time     DateTime @db.Time(0)
+  id         Int      @id
+  start_time DateTime @db.Time(0)
+  end_time   DateTime @db.Time(0)
 }

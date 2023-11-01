@@ -15,6 +15,7 @@ app.use(express.urlencoded({ extended: false }));
 app.get("/", (req, res) => res.status(200).send("Leave Management API"));
 
 // Api Routes
+app.use(express.static("public"));
 app.use("/api/AdminDashboard", require("./routes/api/AdminDashboard"));
 app.use("/api/ClockInOut", require("./routes/api/ClockInOut"));
 app.use("/api/holiday", require("./routes/api/holiday"));
