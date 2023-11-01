@@ -113,6 +113,8 @@ router.post("/", upload.single("attachment"), async (req, res) => {
   }
 
   var status = "pending";
+  var status_first_appr = "pending";
+  var status_second_appr = "pending";
 
   try {
     const deparment_approver = await prisma.dep_appr.findUnique({
@@ -137,6 +139,7 @@ router.post("/", upload.single("attachment"), async (req, res) => {
       status = "approved";
     }
 
+<<<<<<< HEAD
     const senderName = await prisma.employee.findUnique({
       where: { id: parseInt(empId) || undefined },
       select: {
@@ -144,6 +147,25 @@ router.post("/", upload.single("attachment"), async (req, res) => {
         last_name: true,
       },
     });
+=======
+    if (deparment_approver.first_appr != null) {
+      if (deparment_approver.first_appr == empId) {
+        status_first_appr = "approved";
+        if (!deparment_approver.second_appr) {
+          status = "approved";
+        }
+      }
+    }
+
+    if (deparment_approver.second_appr != null) {
+      if (deparment_approver.second_appr == empId) {
+        status_second_appr = "approved";
+        if (!deparment_approver.first_appr) {
+          status = "approved";
+        }
+      }
+    }
+>>>>>>> main
 
     const createApprovalDoc = await prisma.approval_doc.create({
       data: {
@@ -158,10 +180,19 @@ router.post("/", upload.single("attachment"), async (req, res) => {
         backup_contact: backupContact,
         attachment: attachment,
         status: status,
+<<<<<<< HEAD
         status_first_appr: deparment_approver.first_appr ? "pending" : null,
         first_appr_at: null,
         status_second_appr: deparment_approver.second_appr ? "pending" : null,
         second_appr_at: null,
+=======
+        status_first_appr: deparment_approver.first_appr
+          ? status_first_appr
+          : null,
+        status_second_appr: deparment_approver.second_appr
+          ? status_second_appr
+          : null,
+>>>>>>> main
       },
     });
 
