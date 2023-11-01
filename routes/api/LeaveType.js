@@ -44,7 +44,13 @@ router.get("/:id", async (req, res) => {
       where: {
         id: id,
       },
-      include: { type_quantity: true },
+      select: {
+        id: true,
+        type_name: true,
+        fixed_quota: true,
+        type: true,
+        type_quantity: { orderBy: { year: "asc" } },
+      },
     });
 
     if (singleLeaveType == null)

@@ -276,37 +276,9 @@ router.get("/admin/:id", async (req, res) => {
         status: true,
         start_date: true,
         end_date: true,
+        emp: { select: { first_name: true, last_name: true } },
       },
     });
-
-    // const allApprovalDocs = [];
-
-    // for (const dep of deparment_approvers) {
-    //   const approvalDocs = await prisma.approval_doc.findMany({
-    //     where: {
-    //       dep_id: dep.dep_id,
-    //     },
-    //     include: {
-    //       emp: true,
-    //       dep: true,
-    //       type: true,
-    //     },
-    //   });
-
-    //   if (dep.first_appr == emp_id) {
-    //     for (const approvalDoc of approvalDocs) {
-    //       approvalDoc.status = approvalDoc.status_first_appr;
-    //     }
-    //   } else {
-    //     for (const approvalDoc of approvalDocs) {
-    //       approvalDoc.status = approvalDoc.status_second_appr;
-    //     }
-    //   }
-
-    //   for (const approvalDoc of approvalDocs) {
-    //     allApprovalDocs.push(approvalDoc);
-    //   }
-    // }
 
     res.status(200).json(leaveForAdmin);
   } catch (e) {
@@ -333,32 +305,7 @@ router.get("/employee/:id", async (req, res) => {
         start_date: true,
         end_date: true,
       },
-      // include: {
-      //   emp: true,
-      //   dep: true,
-      //   type: true,
-      // },
     });
-
-    // const dep_appr = await prisma.dep_appr.findUnique({
-    //   where: {
-    //     dep_id: allApprovalDocs[0].dep_id,
-    //   },
-    //   select: {
-    //     emp1_appr: {
-    //       select: {
-    //         first_name: true,
-    //         last_name: true,
-    //       },
-    //     },
-    //     emp2_appr: {
-    //       select: {
-    //         first_name: true,
-    //         last_name: true,
-    //       },
-    //     },
-    //   },
-    // });
 
     res.status(200).json(allApprovalDocs);
   } catch (e) {
@@ -437,7 +384,12 @@ router.put("/:id", upload.single("attachment"), async (req, res) => {
     status,
   } = req.body;
 
-  const attachment = path.join(req.file.destination, req.file.filename);
+  var attachment = null; // Initialize attachment as null
+
+  if (req.file) {
+    // Check if a file was uploaded
+    attachment = path.join(req.file.destination, req.file.filename);
+  }
 
   try {
     const editApprovalDoc = await prisma.approval_doc.update({

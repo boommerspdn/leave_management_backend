@@ -31,7 +31,7 @@ router.get("/:empId", async (req, res) => {
         OR: [{ status: "pending" }, { status: "approved" }],
         end_date: {
           gte: new Date(currentDate.getFullYear(), 0, 1),
-          lte: new Date(currentDate.getFullYear(), 11, 30),
+          lt: new Date(currentDate.getFullYear() + 1, 0, 1),
         },
       },
     });
@@ -63,7 +63,7 @@ router.get("/:empId", async (req, res) => {
           type_id: type.id,
           end_date: {
             gte: new Date(currentDate.getFullYear(), 0, 1),
-            lte: new Date(currentDate.getFullYear(), 11, 30),
+            lt: new Date(currentDate.getFullYear() + 1, 0, 1),
           },
         },
       });
@@ -130,7 +130,7 @@ router.get("/:empId", async (req, res) => {
           emp_id: parseInt(requestedEmployee),
           end_date: {
             gte: new Date(currentDate.getFullYear(), 0, 1),
-            lte: new Date(currentDate.getFullYear(), 11, 30),
+            lt: new Date(currentDate.getFullYear() + 1, 0, 1),
           },
           status: "pending",
         },
@@ -149,7 +149,7 @@ router.get("/:empId", async (req, res) => {
           emp_id: parseInt(requestedEmployee),
           end_date: {
             gte: new Date(currentDate.getFullYear(), 0, 1),
-            lte: new Date(currentDate.getFullYear(), 11, 30),
+            lte: new Date(currentDate.getFullYear() + 1, 0, 1),
           },
           status: "approved",
         },
@@ -168,7 +168,7 @@ router.get("/:empId", async (req, res) => {
           emp_id: parseInt(requestedEmployee),
           end_date: {
             gte: new Date(currentDate.getFullYear(), 0, 1),
-            lte: new Date(currentDate.getFullYear(), 11, 30),
+            lt: new Date(currentDate.getFullYear() + 1, 0, 1),
           },
           status: "rejected",
         },

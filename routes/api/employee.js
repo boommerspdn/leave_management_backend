@@ -68,6 +68,20 @@ router.get("/", async (req, res) => {
   res.status(200).json(allEmployee);
 });
 
+// Get username
+router.get("/usr", async (req, res) => {
+  const { username } = req.query;
+
+  const checkUsername = await prisma.employee.findUnique({
+    select: { username: true },
+    where: {
+      username,
+    },
+  });
+
+  res.status(200).json(checkUsername);
+});
+
 // Read all employees with only id and name
 router.get("/getName", async (req, res) => {
   const allEmployee = await prisma.employee.findMany({
@@ -137,6 +151,9 @@ router.put("/:id", async (req, res) => {
     role,
   } = req.body;
 
+  const salt = bcrypt.genSaltSync(10);
+  const hash = await bcrypt.hash(password, salt);
+
   try {
     const editEmployee = await prisma.employee.update({
       where: {
@@ -152,7 +169,7 @@ router.put("/:id", async (req, res) => {
         gender: gender || undefined,
         address: address || undefined,
         username: username || undefined,
-        password: password || undefined,
+        password: hash || undefined,
         date_employed: dateEmployed ? new Date(dateEmployed) : undefined,
         auth: auth ? parseInt(auth) : 0,
         status: status || undefined,

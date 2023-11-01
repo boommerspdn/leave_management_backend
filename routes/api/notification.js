@@ -29,6 +29,7 @@ router.get("/", async (req, res) => {
   try {
     const docNotification = await prisma.notification.findMany({
       orderBy: { created_at: "desc" },
+      take: 15,
       where: { OR: [{ first_receiver: emp_id }, { second_receiver: emp_id }] },
       select: {
         id: true,
