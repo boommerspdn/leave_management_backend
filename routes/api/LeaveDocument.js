@@ -260,22 +260,23 @@ router.post("/", upload.single("attachment"), async (req, res) => {
 // Read all approval docs for admin
 router.get("/admin/:id", async (req, res) => {
   const id = parseInt(req.params.id);
+  const { depId } = req.query;
 
   try {
-    const deparment_approvers = await prisma.dep_appr.findMany({
-      where: {
-        OR: [{ first_appr: id }, { second_appr: id }],
-      },
-    });
+    // const deparment_approvers = await prisma.dep_appr.findMany({
+    //   where: {
+    //     OR: [{ first_appr: id }, { second_appr: id }],
+    //   },
+    // });
 
-    if (deparment_approvers.length === 0) {
-      res.status(400).json({ message: "deparment approver not found" });
-      return;
-    }
+    // if (deparment_approvers.length === 0) {
+    //   res.status(400).json({ message: "deparment approver not found" });
+    //   return;
+    // }
 
     const leaveForAdmin = await prisma.approval_doc.findMany({
       where: {
-        dep_id: deparment_approvers[0].dep_id,
+        dep_id: depId,
       },
       select: {
         id: true,
