@@ -9,19 +9,19 @@ datasource db {
 
 model employee {
   id              Int            @id @default(autoincrement())
-  first_name      String         @db.VarChar(191)
-  last_name       String         @db.VarChar(191)
+  first_name      String
+  last_name       String
   birth_date      DateTime       @db.DateTime(0)
-  email           String         @db.VarChar(191)
-  gender          String         @db.VarChar(191)
-  address         String         @db.VarChar(191)
-  username        String         @unique @db.VarChar(191)
-  password        String         @db.VarChar(191)
+  email           String
+  gender          String
+  address         String
+  username        String         @unique
+  password        String
   auth            Int
   dep_id          Int?
   date_employed   DateTime       @db.DateTime(0)
-  phone           String         @db.VarChar(191)
-  status          String         @db.VarChar(191)
+  phone           String
+  status          String
   role            String
   approval_docs   approval_doc[]
   dep_appr1       dep_appr[]     @relation("first_appr")
@@ -37,7 +37,7 @@ model employee {
 
 model department {
   id           Int            @id @default(autoincrement())
-  dep_name     String         @db.VarChar(191)
+  dep_name     String
   approval_doc approval_doc[]
   dep_appr     dep_appr?
   employee     employee[]
@@ -58,7 +58,7 @@ model dep_appr {
 
 model leave_type {
   id            Int             @id @default(autoincrement())
-  type_name     String          @db.VarChar(191)
+  type_name     String
   fixed_quota   Int?
   type          String
   approval_doc  approval_doc[]
@@ -79,22 +79,22 @@ model approval_doc {
   id                 Int            @id @default(autoincrement())
   emp_id             Int
   dep_id             Int?
-  type_id            Int
+  type_id            Int?
   start_date         DateTime       @db.DateTime(0)
   end_date           DateTime       @db.DateTime(0)
   amount             Int
-  reason             String         @db.VarChar(191)
-  written_place      String         @db.VarChar(191)
-  backup_contact     String         @db.VarChar(191)
-  attachment         String?        @db.VarChar(191)
-  status             String         @db.VarChar(191)
-  status_first_appr  String?        @db.VarChar(191)
+  reason             String
+  written_place      String
+  backup_contact     String
+  attachment         String?
+  status             String
+  status_first_appr  String?
   first_appr_at      DateTime?      @db.DateTime(0)
-  status_second_appr String?        @db.VarChar(191)
+  status_second_appr String?
   second_appr_at     DateTime?      @db.DateTime(0)
   dep                department?    @relation(fields: [dep_id], references: [id])
   emp                employee       @relation(fields: [emp_id], references: [id])
-  type               leave_type     @relation(fields: [type_id], references: [id])
+  type               leave_type?    @relation(fields: [type_id], references: [id], onDelete: Cascade)
   notification       notification[] @relation("doc_id")
 
   @@index([dep_id], map: "approval_doc_dep_id_fkey")
@@ -116,14 +116,14 @@ model time_record {
 
 model holiday {
   id         Int       @id @default(autoincrement())
-  name       String    @db.VarChar(191)
+  name       String
   start_date DateTime  @unique @db.DateTime(0)
   end_date   DateTime? @unique @db.DateTime(0)
 }
 
 model notification {
   id              Int          @id @default(autoincrement())
-  noti_type       String       @db.VarChar(191)
+  noti_type       String
   sender_id       Int
   first_receiver  Int?
   second_receiver Int?

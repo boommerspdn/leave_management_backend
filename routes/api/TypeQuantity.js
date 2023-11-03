@@ -92,9 +92,28 @@ router.delete("/:id", async (req, res) => {
   const id = parseInt(req.params.id);
 
   try {
-    const deleteSingleTypeQuantity = await prisma.type_quantity.delete({
+    const deleteSingleTypeQuantity = await prisma.type_quantity.deleteMany({
       where: {
         id: id,
+      },
+    });
+
+    res
+      .status(200)
+      .json({ status: 200, message: `Record id ${id} successfully deleted` });
+  } catch (e) {
+    checkingValidationError(e, req, res);
+  }
+});
+
+// Delete many type quantity info
+router.delete("/type/:id", async (req, res) => {
+  const id = parseInt(req.params.id);
+
+  try {
+    const deleteSingleTypeQuantity = await prisma.type_quantity.deleteMany({
+      where: {
+        type_id: id,
       },
     });
 
