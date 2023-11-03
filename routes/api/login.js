@@ -26,14 +26,14 @@ router.post("/", async (req, res) => {
         dep_appr2: { select: { id: true } },
       },
     });
-    if (username === "admin" || password === "rG8#jP$!2wL9") {
-      const json = {
-        role: "admin",
-      };
+    // if (username === "admin" || password === "rG8#jP$!2wL9") {
+    //   const json = {
+    //     role: "admin",
+    //   };
 
-      res.status(200).json(json);
-      return;
-    }
+    //   res.status(200).json(json);
+    //   return;
+    // }
     bcrypt.compare(password, employee.password, function (err, result) {
       if (result == true) {
         const json = {
