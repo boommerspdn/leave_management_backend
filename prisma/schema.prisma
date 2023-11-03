@@ -129,8 +129,8 @@ model notification {
   second_receiver Int?
   doc_id          Int
   created_at      DateTime     @db.DateTime(0)
-  is_seen_first   Int
-  is_seen_second  Int
+  is_seen_first   Int?
+  is_seen_second  Int?
   docId           approval_doc @relation("doc_id", fields: [doc_id], references: [id], onDelete: Cascade)
   firstReceiver   employee?    @relation("first_receiver", fields: [first_receiver], references: [id])
   secondReceiver  employee?    @relation("second_receiver", fields: [second_receiver], references: [id])
