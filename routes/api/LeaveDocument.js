@@ -19,6 +19,8 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage: storage });
 
+var currentDate = new Date();
+
 const calculateDayAmount = async (_startDate, _endDate, id) => {
   if (_startDate && _endDate) {
     const startDate = new Date(_startDate);
@@ -180,15 +182,17 @@ router.post("/", upload.single("attachment"), async (req, res) => {
         status_first_appr: deparment_approver.first_appr
           ? status_first_appr
           : null,
+        first_appr_at: deparment_approver.first_appr ? currentDate : null,
         status_second_appr: deparment_approver.second_appr
           ? status_second_appr
           : null,
+        second_appr_at: deparment_approver.second_appr ? currentDate : null,
       },
     });
 
     // Get dep appr
-    const depAppr = await prisma.dep_appr.findFirst({
-      where: { dep_id: 1 },
+    const depAppr = await prisma.dep_appr.findUnique({
+      where: { dep_id: parseInt(depId) },
     });
 
     // Get latest doc for notification
@@ -206,19 +210,24 @@ router.post("/", upload.single("attachment"), async (req, res) => {
         second_receiver: depAppr ? depAppr.second_appr : null,
         is_seen_first: 0,
         is_seen_second: 0,
+        created_at: currentDate,
       },
     });
 
-    const approverEmails = [
-      {
+    const approverEmails = [];
+
+    if (deparment_approver.emp1_appr) {
+      approverEmails.push({
         appr_email: deparment_approver.emp1_appr.email,
         appr_name: `${deparment_approver.emp1_appr.first_name} ${deparment_approver.emp1_appr.last_name}`,
-      },
-      {
+      });
+    }
+    if (deparment_approver.emp2_appr) {
+      approverEmails.push({
         appr_email: deparment_approver.emp2_appr.email,
         appr_name: `${deparment_approver.emp2_appr.first_name} ${deparment_approver.emp2_appr.last_name}`,
-      },
-    ];
+      });
+    }
 
     approverEmails.forEach((approverEmail) => {
       sendEmail(
@@ -503,6 +512,7 @@ router.put("/status/:id", async (req, res) => {
           : null,
         is_seen_first: 0,
         is_seen_second: 0,
+        created_at: currentDate,
       },
     });
 
@@ -516,6 +526,13 @@ router.put("/status/:id", async (req, res) => {
     const getTargetedDoc = await prisma.approval_doc.findUnique({
       where: { id: id },
     });
+
+    // const approver = []
+
+    // approver.push(   {
+    //         appr_email: documentSender.emp.email,
+    //         appr_name: `${documentSender.emp.first_name} ${documentSender.emp.last_name}`,
+    //       },)
 
     const approverEmails = [
       {
