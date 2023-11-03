@@ -506,11 +506,12 @@ router.put("/status/:id", async (req, res) => {
         sender_id: parseInt(emp_id),
         doc_id: id,
         first_receiver: documentSender ? documentSender.emp.id : null,
-        second_receiver: isFirstAppr
-          ? depAppr.second_appr
-          : !isFirstAppr
-          ? depAppr.first_appr
-          : null,
+        second_receiver:
+          isFirstAppr && depAppr
+            ? depAppr.second_appr
+            : !isFirstAppr && depAppr
+            ? depAppr.first_appr
+            : null,
         is_seen_first: 0,
         is_seen_second: 0,
         created_at: currentDate,
