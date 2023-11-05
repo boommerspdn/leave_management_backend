@@ -446,14 +446,13 @@ router.put("/status/:id", async (req, res) => {
     const deparment_approver = await prisma.dep_appr.findFirst({
       where: {
         dep_id: dep_id,
-        OR: [{ first_appr: emp_id }, { second_appr: emp_id }],
       },
     });
 
-    if (!deparment_approver) {
-      res.status(400).json({ message: "deparment approver not found" });
-      return;
-    }
+    // if (!deparment_approver) {
+    //   res.status(400).json({ message: "deparment approver not found" });
+    //   return;
+    // }
 
     var isFirstAppr = false;
     if (deparment_approver.first_appr == emp_id) {
