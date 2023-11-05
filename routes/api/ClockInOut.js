@@ -88,21 +88,30 @@ router.post("/", async (req, res) => {
 
 // Read all clock in and out
 router.get("/", async (req, res) => {
+  const date = new Date();
+  const startDate = new Date(date);
+  const endDate = new Date(date);
+  startDate.setHours(0, 0, 0, 0);
+  endDate.setHours(24, 0, 0, 0);
+
   try {
-    const allTimeRecords = await prisma.time_record.findMany({
+    const allTimeRecords = await prisma.employee.findMany({
       select: {
         id: true,
-        emp: {
+        first_name: true,
+        last_name: true,
+        dep: {
           select: {
-            first_name: true,
-            last_name: true,
-            dep: true,
+            id: true,
+            dep_name: true,
           },
         },
-        date: true,
-        clock_in: true,
-        clock_out: true,
-        total_hours: true,
+        time_record: {
+          where: {
+            date: { gte: startDate, lt: endDate },
+          },
+          include: {},
+        },
       },
     });
 
@@ -121,7 +130,11 @@ router.get("/", async (req, res) => {
 
     for (let timeRecord of allTimeRecords) {
       const startTime = new Date(workHour.start_time);
-      const clockIn = new Date(timeRecord.clock_in);
+
+      const clockIn =
+        timeRecord.time_record.length > 0
+          ? new Date(timeRecord.time_record[0].clock_in)
+          : startTime;
 
       startTime.setDate(clockIn.getDate());
       startTime.setMonth(clockIn.getMonth());
@@ -129,8 +142,9 @@ router.get("/", async (req, res) => {
       startTime.setMinutes(
         startTime.getMinutes() + clockIn.getTimezoneOffset()
       );
-
+      console.log(`[CLOCKIN]:${clockIn} [STARTTIME]:${startTime}`);
       const diffTime = clockIn - startTime;
+
       if (diffTime > 0) {
         timeRecord.late_time = new Date(diffTime);
       } else {

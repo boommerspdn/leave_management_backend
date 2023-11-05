@@ -57,6 +57,15 @@ global.checkingValidationError = (e, req, res) => {
   }
 };
 
+global.getTodayDate = () => {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  const formattedToday = today.toLocaleString("sv").replace(" ", "T") + ".000Z";
+
+  return formattedToday;
+};
+
 const PORT = process.env.PORT || 5000;
 
 app.listen(PORT, () => console.log(`Server started on port ${PORT}`));
