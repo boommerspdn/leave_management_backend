@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 const { PrismaClient } = require("@prisma/client");
 
-const prisma = new PrismaClient();
+const prisma = require("../../client");
 
 router.post("/", async (req, res) => {
   const { start_time, end_time } = req.body;
