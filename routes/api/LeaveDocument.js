@@ -528,13 +528,6 @@ router.put("/status/:id", async (req, res) => {
       where: { id: id },
     });
 
-    // const approver = []
-
-    // approver.push(   {
-    //         appr_email: documentSender.emp.email,
-    //         appr_name: `${documentSender.emp.first_name} ${documentSender.emp.last_name}`,
-    //       },)
-
     const approverEmails = [
       {
         appr_email: documentSender.emp.email,
