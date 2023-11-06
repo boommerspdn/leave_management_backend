@@ -3,7 +3,7 @@ const router = express.Router();
 const { PrismaClient } = require("@prisma/client");
 const moment = require("moment");
 
-const prisma = new PrismaClient();
+const prisma = require("../../client");
 
 // Function to calculate total hours for clock in and out
 const calculateTotalHours = async (clockIn, clockOut, id) => {

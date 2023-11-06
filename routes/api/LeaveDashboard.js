@@ -3,7 +3,7 @@ const router = express.Router();
 const { PrismaClient } = require("@prisma/client");
 const moment = require("moment");
 
-const prisma = new PrismaClient();
+const prisma = require("../../client");
 
 router.get("/:empId", async (req, res) => {
   const requestedEmployee = req.params.empId;
