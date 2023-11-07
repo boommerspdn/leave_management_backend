@@ -260,7 +260,7 @@ router.post("/", upload.single("attachment"), async (req, res) => {
 // Read all approval docs for admin
 router.get("/admin/:id", async (req, res) => {
   const id = parseInt(req.params.id);
-  const { depId } = req.query;
+  const depId = parseInt(req.query.depId);
 
   try {
     // const deparment_approvers = await prisma.dep_appr.findMany({
@@ -276,7 +276,7 @@ router.get("/admin/:id", async (req, res) => {
 
     const leaveForAdmin = await prisma.approval_doc.findMany({
       where: {
-        dep_id: depId,
+        dep_id: depId || undefined,
       },
       select: {
         id: true,
