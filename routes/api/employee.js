@@ -28,6 +28,16 @@ router.post("/", async (req, res) => {
   const hash = await bcrypt.hash(password, salt);
 
   try {
+    const employee = await prisma.employee.findFirst({
+      where: { dep_id: parseInt(depId), role: "head" },
+    });
+
+    if (employee != null) {
+      return res
+        .status(400)
+        .json({ message: "Department already has head user" });
+    }
+
     const createEmployee = await prisma.employee.create({
       data: {
         first_name: firstName,
