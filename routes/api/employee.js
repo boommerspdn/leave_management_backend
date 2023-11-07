@@ -68,6 +68,25 @@ router.get("/", async (req, res) => {
   res.status(200).json(allEmployee);
 });
 
+router.get("/dep/:dep_id", async (req, res) => {
+  const dep_id = parseInt(req.params.dep_id);
+
+  try {
+    const allEmployee = await prisma.employee.findMany({
+      where: {
+        dep_id: dep_id,
+      },
+      include: {
+        dep: true,
+      },
+    });
+
+    res.status(200).json(allEmployee);
+  } catch (e) {
+    checkingValidationError(e, req, res);
+  }
+});
+
 // Get username
 router.get("/usr", async (req, res) => {
   const { username } = req.query;
@@ -103,7 +122,7 @@ router.get("/getAppr", async (req, res) => {
       last_name: true,
     },
     where: {
-      role: "admin",
+      OR: [{ role: "admin" }, { role: "head" }],
     },
   });
 

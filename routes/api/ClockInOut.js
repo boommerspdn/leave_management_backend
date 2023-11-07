@@ -156,6 +156,81 @@ router.get("/", async (req, res) => {
   }
 });
 
+router.get("/dep/:dep_id", async (req, res) => {
+  const dep_id = parseInt(req.params.dep_id);
+
+  const date = new Date();
+  const startDate = new Date(date);
+  const endDate = new Date(date);
+  startDate.setHours(0, 0, 0, 0);
+  endDate.setHours(24, 0, 0, 0);
+
+  try {
+    const allTimeRecords = await prisma.employee.findMany({
+      where: {
+        dep_id: dep_id,
+      },
+      select: {
+        id: true,
+        first_name: true,
+        last_name: true,
+        dep: {
+          select: {
+            id: true,
+            dep_name: true,
+          },
+        },
+        time_record: {
+          where: {
+            date: { gte: startDate, lt: endDate },
+          },
+          include: {},
+        },
+      },
+    });
+
+    const workHour = await prisma.work_hour.findUnique({
+      where: {
+        id: 1,
+      },
+    });
+
+    if (!workHour) {
+      for (let timeRecord of allTimeRecords) {
+        timeRecord.late_time = new Date(0);
+      }
+      return res.status(200).json(allTimeRecords);
+    }
+
+    for (let timeRecord of allTimeRecords) {
+      const startTime = new Date(workHour.start_time);
+
+      const clockIn =
+        timeRecord.time_record.length > 0
+          ? new Date(timeRecord.time_record[0].clock_in)
+          : startTime;
+
+      startTime.setDate(clockIn.getDate());
+      startTime.setMonth(clockIn.getMonth());
+      startTime.setFullYear(clockIn.getFullYear());
+      startTime.setMinutes(
+        startTime.getMinutes() + clockIn.getTimezoneOffset()
+      );
+      const diffTime = clockIn - startTime;
+
+      if (diffTime > 0) {
+        timeRecord.late_time = new Date(diffTime);
+      } else {
+        timeRecord.late_time = new Date(0);
+      }
+    }
+
+    res.status(200).json(allTimeRecords);
+  } catch (e) {
+    checkingValidationError(e, req, res);
+  }
+});
+
 // Read single clock in and out
 router.get("/:id", async (req, res) => {
   const id = parseInt(req.params.id);
