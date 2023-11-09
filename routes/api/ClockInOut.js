@@ -87,7 +87,9 @@ router.post("/", async (req, res) => {
 
 // Read all clock in and out
 router.get("/", async (req, res) => {
-  const date = new Date();
+  const { q } = req.query;
+  const date = q ? new Date(q) : new Date();
+
   const startDate = new Date(date);
   const endDate = new Date(date);
   startDate.setHours(0, 0, 0, 0);

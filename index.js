@@ -34,6 +34,7 @@ app.use("/api/login", require("./routes/api/login"));
 app.use("/api/token", require("./routes/api/token"));
 app.use("/api/notification", require("./routes/api/notification"));
 app.use("/api/workHour", require("./routes/api/workHour"));
+app.use("/api/excel", require("./routes/api/ExportExcel"));
 
 // Global function for error handling
 global.checkingValidationError = (e, req, res) => {
