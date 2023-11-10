@@ -475,7 +475,7 @@ router.put("/status/:id", async (req, res) => {
 
     // Get dep appr
     const depAppr = await prisma.dep_appr.findFirst({
-      where: { dep_id: 1 },
+      where: { dep_id: dep_id },
       select: {
         id: true,
         first_appr: true,

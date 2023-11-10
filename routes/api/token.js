@@ -13,7 +13,7 @@ router.get("/", async (req, res) => {
     },
     process.env.SECRET_KEY,
     {
-      expiresIn: "30s",
+      expiresIn: "60s",
     }
   );
 
