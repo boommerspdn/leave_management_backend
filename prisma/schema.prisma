@@ -3,7 +3,7 @@ generator client {
 }
 
 datasource db {
-  provider = "mysql"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
@@ -11,7 +11,7 @@ model employee {
   id              Int            @id @default(autoincrement())
   first_name      String
   last_name       String
-  birth_date      DateTime       @db.DateTime(0)
+  birth_date      DateTime       @db.Timestamp(0)
   email           String
   gender          String
   address         String
@@ -19,7 +19,7 @@ model employee {
   password        String
   auth            Int
   dep_id          Int?
-  date_employed   DateTime       @db.DateTime(0)
+  date_employed   DateTime       @db.Timestamp(0)
   phone           String
   status          String
   role            String
@@ -31,8 +31,6 @@ model employee {
   second_receiver notification[] @relation("second_receiver")
   sender          notification[] @relation("sender")
   time_record     time_record[]
-
-  @@index([dep_id], map: "employee_dep_id_fkey")
 }
 
 model department {
@@ -51,9 +49,6 @@ model dep_appr {
   dep         department @relation(fields: [dep_id], references: [id], onDelete: Cascade)
   emp1_appr   employee?  @relation("first_appr", fields: [first_appr], references: [id])
   emp2_appr   employee?  @relation("second_appr", fields: [second_appr], references: [id])
-
-  @@index([first_appr], map: "dep_appr_first_appr_fkey")
-  @@index([second_appr], map: "dep_appr_second_appr_fkey")
 }
 
 model leave_type {
@@ -71,8 +66,6 @@ model type_quantity {
   year     Int
   quantity Int
   type     leave_type @relation(fields: [type_id], references: [id], onDelete: Cascade)
-
-  @@index([type_id], map: "type_quantity_type_id_fkey")
 }
 
 model approval_doc {
@@ -80,45 +73,39 @@ model approval_doc {
   emp_id             Int
   dep_id             Int?
   type_id            Int?
-  start_date         DateTime       @db.DateTime(0)
-  end_date           DateTime       @db.DateTime(0)
+  start_date         DateTime       @db.Timestamp(0)
+  end_date           DateTime       @db.Timestamp(0)
   reason             String
   written_place      String
   backup_contact     String
   attachment         String?
   status             String
   amount             Int
-  first_appr_at      DateTime?      @db.DateTime(0)
-  second_appr_at     DateTime?      @db.DateTime(0)
+  first_appr_at      DateTime?      @db.Timestamp(0)
+  second_appr_at     DateTime?      @db.Timestamp(0)
   status_first_appr  String?
   status_second_appr String?
   dep                department?    @relation(fields: [dep_id], references: [id])
   emp                employee       @relation(fields: [emp_id], references: [id], onDelete: Cascade)
   type               leave_type?    @relation(fields: [type_id], references: [id])
   notification       notification[] @relation("doc_id")
-
-  @@index([dep_id], map: "approval_doc_dep_id_fkey")
-  @@index([emp_id], map: "approval_doc_emp_id_fkey")
-  @@index([type_id], map: "approval_doc_type_id_fkey")
 }
 
 model time_record {
   id          Int       @id @default(autoincrement())
   emp_id      Int
-  date        DateTime  @db.DateTime(0)
-  clock_in    DateTime  @db.DateTime(0)
-  clock_out   DateTime? @db.DateTime(0)
+  date        DateTime  @db.Timestamp(0)
+  clock_in    DateTime  @db.Timestamp(0)
+  clock_out   DateTime? @db.Timestamp(0)
   total_hours Decimal?  @db.Decimal(4, 2)
   emp         employee  @relation(fields: [emp_id], references: [id], onDelete: Cascade)
-
-  @@index([emp_id], map: "time_record_emp_id_fkey")
 }
 
 model holiday {
   id         Int       @id @default(autoincrement())
   name       String
-  start_date DateTime  @unique @db.DateTime(0)
-  end_date   DateTime? @unique @db.DateTime(0)
+  start_date DateTime  @unique @db.Timestamp(0)
+  end_date   DateTime? @unique @db.Timestamp(0)
 }
 
 model notification {
@@ -128,18 +115,13 @@ model notification {
   first_receiver  Int?
   second_receiver Int?
   doc_id          Int
-  created_at      DateTime     @db.DateTime(0)
+  created_at      DateTime     @db.Timestamp(0)
   is_seen_first   Int?
   is_seen_second  Int?
   docId           approval_doc @relation("doc_id", fields: [doc_id], references: [id], onDelete: Cascade)
   firstReceiver   employee?    @relation("first_receiver", fields: [first_receiver], references: [id], onDelete: SetNull)
   secondReceiver  employee?    @relation("second_receiver", fields: [second_receiver], references: [id], onDelete: SetNull)
   sender          employee?    @relation("sender", fields: [sender_id], references: [id], onDelete: SetNull)
-
-  @@index([doc_id], map: "notification_doc_id_fkey")
-  @@index([first_receiver], map: "notification_first_receiver_fkey")
-  @@index([second_receiver], map: "notification_second_receiver_fkey")
-  @@index([sender_id], map: "notification_sender_id_fkey")
 }
 
 model work_hour {
