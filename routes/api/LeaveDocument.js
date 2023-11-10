@@ -535,10 +535,14 @@ router.put("/status/:id", async (req, res) => {
             firstReceiver: {
               connect: { id: documentSender.emp.id },
             },
-            ...(depAppr.second_appr && !isFirstAppr
+            ...(deparment_approver.second_appr
               ? {
                   secondReceiver: {
-                    connect: { id: depAppr.second_appr },
+                    connect: {
+                      id: isFirstAppr
+                        ? deparment_approver.second_appr
+                        : deparment_approver.first_appr,
+                    },
                   },
                 }
               : {}),
@@ -570,14 +574,19 @@ router.put("/status/:id", async (req, res) => {
         appr_email: documentSender.emp.email,
         appr_name: `${documentSender.emp.first_name} ${documentSender.emp.last_name}`,
       },
-      ...(isFirstAppr && depAppr.emp2_appr
+      ...(depAppr.emp2_appr && isFirstAppr
         ? [
             {
               appr_email: depAppr.emp2_appr.email,
               appr_name: `${depAppr.emp2_appr.first_name} ${depAppr.emp2_appr.last_name}`,
             },
           ]
-        : []),
+        : [
+            {
+              appr_email: depAppr.emp1_appr.email,
+              appr_name: `${depAppr.emp1_appr.first_name} ${depAppr.emp1_appr.last_name}`,
+            },
+          ]),
     ];
 
     approverEmails.forEach((approverEmail) => {
