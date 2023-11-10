@@ -28,6 +28,18 @@ router.post("/", async (req, res) => {
   const hash = await bcrypt.hash(password, salt);
 
   try {
+    if (role === "head") {
+      const employee = await prisma.employee.findFirst({
+        where: { dep_id: parseInt(depId), role: "head" },
+      });
+
+      if (employee != null) {
+        return res
+          .status(400)
+          .json({ message: "Department already has head user" });
+      }
+    }
+
     const createEmployee = await prisma.employee.create({
       data: {
         first_name: firstName,
@@ -99,6 +111,22 @@ router.get("/usr", async (req, res) => {
   });
 
   res.status(200).json(checkUsername);
+});
+
+router.get("/head", async (req, res) => {
+  const depId = parseInt(req.query.depId);
+  try {
+    const employee = await prisma.employee.findFirst({
+      where: { dep_id: depId, role: "head" },
+      select: {
+        id: true,
+      },
+    });
+
+    return res.status(200).json(employee);
+  } catch (e) {
+    checkingValidationError(e, req, res);
+  }
 });
 
 // Read all employees with only id and name
@@ -174,6 +202,18 @@ router.put("/:id", async (req, res) => {
   const hash = await bcrypt.hash(password, salt);
 
   try {
+    if (role === "head") {
+      const employee = await prisma.employee.findFirst({
+        where: { dep_id: parseInt(depId), role: "head" },
+      });
+
+      if (employee != null && employee.id != id) {
+        return res
+          .status(400)
+          .json({ message: "Department already has head user" });
+      }
+    }
+
     const editEmployee = await prisma.employee.update({
       where: {
         id: id,
