@@ -6,7 +6,7 @@ const prisma = require("../../client");
 
 // Create leave type
 router.post("/", async (req, res) => {
-  const { typeName, fixedQuota, type } = req.body;
+  const { typeName, fixedQuota, type, typeQuantity } = req.body;
 
   try {
     const createLeaveType = await prisma.leave_type.create({
@@ -14,6 +14,14 @@ router.post("/", async (req, res) => {
         type_name: typeName,
         fixed_quota: parseInt(fixedQuota),
         type: type,
+        type_quantity: {
+          createMany: {
+            data: typeQuantity.map((item) => ({
+              year: parseInt(item.year),
+              quantity: parseInt(item.quantity),
+            })),
+          },
+        },
       },
     });
 
@@ -66,7 +74,7 @@ router.get("/:id", async (req, res) => {
 // Update leave type info
 router.put("/:id", async (req, res) => {
   const id = parseInt(req.params.id);
-  const { typeName, fixedQuota, type } = req.body;
+  const { typeName, fixedQuota, type, typeQuantity } = req.body;
 
   try {
     const editLeaveType = await prisma.leave_type.update({
@@ -77,7 +85,16 @@ router.put("/:id", async (req, res) => {
         type_name: typeName || undefined,
         fixed_quota: fixedQuota ? parseInt(fixedQuota) : undefined,
         type: type || undefined,
+        type_quantity: { deleteMany: { type_id: id } },
       },
+    });
+
+    await prisma.type_quantity.createMany({
+      data: typeQuantity.map((item) => ({
+        type_id: id,
+        year: parseInt(item.year),
+        quantity: parseInt(item.quantity),
+      })),
     });
 
     res.status(200).json({

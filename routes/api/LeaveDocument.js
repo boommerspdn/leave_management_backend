@@ -191,32 +191,47 @@ router.post("/", upload.single("attachment"), async (req, res) => {
           ? status_second_appr
           : null,
         second_appr_at: deparment_approver.second_appr ? second_appr_at : null,
+        notification: {
+          create: {
+            noti_type: "request",
+            sender_id: parseInt(empId),
+            first_receiver: deparment_approver.first_appr
+              ? deparment_approver.first_appr
+              : null,
+            second_receiver: deparment_approver.second_appr
+              ? deparment_approver.second_appr
+              : null,
+            is_seen_first: 0,
+            is_seen_second: 0,
+            created_at: new Date(),
+          },
+        },
       },
     });
 
     // Get dep appr
-    const depAppr = await prisma.dep_appr.findUnique({
-      where: { dep_id: parseInt(depId) },
-    });
+    // const depAppr = await prisma.dep_appr.findUnique({
+    //   where: { dep_id: parseInt(depId) },
+    // });
 
-    // Get latest doc for notification
-    const lastDocument = await prisma.approval_doc.findFirst({
-      take: -1,
-      select: { id: true },
-    });
+    // // Get latest doc for notification
+    // const lastDocument = await prisma.approval_doc.findFirst({
+    //   take: -1,
+    //   select: { id: true },
+    // });
 
-    const createNotification = await prisma.notification.create({
-      data: {
-        noti_type: "request",
-        sender_id: parseInt(empId),
-        doc_id: lastDocument.id,
-        first_receiver: depAppr ? depAppr.first_appr : null,
-        second_receiver: depAppr ? depAppr.second_appr : null,
-        is_seen_first: 0,
-        is_seen_second: 0,
-        created_at: currentDate,
-      },
-    });
+    // const createNotification = await prisma.notification.create({
+    //   data: {
+    //     noti_type: "request",
+    //     sender_id: parseInt(empId),
+    //     doc_id: lastDocument.id,
+    //     first_receiver: depAppr ? depAppr.first_appr : null,
+    //     second_receiver: depAppr ? depAppr.second_appr : null,
+    //     is_seen_first: 0,
+    //     is_seen_second: 0,
+    //     created_at: currentDate,
+    //   },
+    // });
 
     const approverEmails = [];
 
@@ -254,7 +269,6 @@ router.post("/", upload.single("attachment"), async (req, res) => {
       status: 201,
       message: "Record has been created",
       createApprovalDoc,
-      createNotification,
     });
   } catch (e) {
     checkingValidationError(e, req, res);
@@ -281,6 +295,7 @@ router.get("/admin/:id", async (req, res) => {
         end_date: true,
         emp: { select: { first_name: true, last_name: true } },
       },
+      orderBy: { id: "desc" },
     });
 
     res.status(200).json(leaveForAdmin);
@@ -309,6 +324,7 @@ router.get("/department/:id", async (req, res) => {
         end_date: true,
         emp: { select: { first_name: true, last_name: true } },
       },
+      orderBy: { id: "desc" },
     });
 
     res.status(200).json(leaveForAdmin);
@@ -336,6 +352,7 @@ router.get("/employee/:id", async (req, res) => {
         start_date: true,
         end_date: true,
       },
+      orderBy: { id: "desc" },
     });
 
     res.status(200).json(allApprovalDocs);
@@ -355,6 +372,7 @@ router.get("/:id", async (req, res) => {
       select: {
         emp_id: true,
         type_id: true,
+        dep_id: true,
         start_date: true,
         end_date: true,
         reason: true,
@@ -470,30 +488,6 @@ router.put("/status/:id", async (req, res) => {
       },
     });
 
-    // if (!deparment_approver) {
-    //   res.status(400).json({ message: "deparment approver not found" });
-    //   return;
-    // }
-
-    var isFirstAppr = false;
-    if (deparment_approver.first_appr == emp_id) {
-      isFirstAppr = true;
-    }
-
-    const editApprovalDoc = await prisma.approval_doc.update({
-      where: {
-        id: id,
-      },
-      data: {
-        status_first_appr: isFirstAppr ? status : undefined,
-        first_appr_at: isFirstAppr ? new Date() : undefined,
-        status_second_appr: !isFirstAppr ? status : undefined,
-        second_appr_at: !isFirstAppr ? new Date() : undefined,
-      },
-    });
-
-    updateStatus(id);
-
     // Get dep appr
     const depAppr = await prisma.dep_appr.findFirst({
       where: { dep_id: dep_id },
@@ -510,8 +504,13 @@ router.put("/status/:id", async (req, res) => {
       },
     });
 
+    var isFirstAppr = false;
+    if (deparment_approver.first_appr == emp_id) {
+      isFirstAppr = true;
+    }
+
     // Get doc sender
-    const documentSender = await prisma.approval_doc.findFirst({
+    const documentSender = await prisma.approval_doc.findUnique({
       where: { id: id },
       select: {
         emp: {
@@ -520,23 +519,40 @@ router.put("/status/:id", async (req, res) => {
       },
     });
 
-    const apporvalNotification = await prisma.notification.create({
+    const editApprovalDoc = await prisma.approval_doc.update({
+      where: {
+        id: id,
+      },
       data: {
-        noti_type: status,
-        sender_id: parseInt(emp_id),
-        doc_id: id,
-        first_receiver: documentSender ? documentSender.emp.id : null,
-        second_receiver:
-          isFirstAppr && depAppr
-            ? depAppr.second_appr
-            : !isFirstAppr && depAppr
-            ? depAppr.first_appr
-            : null,
-        is_seen_first: 0,
-        is_seen_second: 0,
-        created_at: currentDate,
+        status_first_appr: isFirstAppr ? status : undefined,
+        first_appr_at: isFirstAppr ? new Date() : undefined,
+        status_second_appr: !isFirstAppr ? status : undefined,
+        second_appr_at: !isFirstAppr ? new Date() : undefined,
+        notification: {
+          create: {
+            noti_type: status,
+            sender: { connect: { id: emp_id } },
+            firstReceiver: {
+              connect: { id: documentSender.emp.id },
+            },
+            ...(depAppr.second_appr && !isFirstAppr
+              ? {
+                  secondReceiver: {
+                    connect: { id: depAppr.second_appr },
+                  },
+                }
+              : {}),
+            is_seen_first: 0,
+            is_seen_second: 0,
+            created_at: new Date(),
+          },
+        },
       },
     });
+
+    updateStatus(id);
+
+    ////////////////////// Create Email //////////////////////
 
     // Get Notification sender
     const getNotificationSender = await prisma.employee.findUnique({
@@ -554,20 +570,14 @@ router.put("/status/:id", async (req, res) => {
         appr_email: documentSender.emp.email,
         appr_name: `${documentSender.emp.first_name} ${documentSender.emp.last_name}`,
       },
-      {
-        appr_email: isFirstAppr
-          ? depAppr.emp2_appr.email
-          : !isFirstAppr && depAppr.emp1_appr.email,
-        appr_name: `${
-          isFirstAppr
-            ? depAppr.emp2_appr.first_name
-            : !isFirstAppr && depAppr.emp1_appr.first_name
-        } ${
-          isFirstAppr
-            ? depAppr.emp2_appr.last_name
-            : !isFirstAppr && depAppr.emp1_appr.last_name
-        }`,
-      },
+      ...(isFirstAppr && depAppr.emp2_appr
+        ? [
+            {
+              appr_email: depAppr.emp2_appr.email,
+              appr_name: `${depAppr.emp2_appr.first_name} ${depAppr.emp2_appr.last_name}`,
+            },
+          ]
+        : []),
     ];
 
     approverEmails.forEach((approverEmail) => {
@@ -586,6 +596,8 @@ router.put("/status/:id", async (req, res) => {
           id,
           getTargetedDoc.status_first_appr,
           getTargetedDoc.status_second_appr
+            ? getTargetedDoc.status_second_appr
+            : ""
         )
       );
     });
