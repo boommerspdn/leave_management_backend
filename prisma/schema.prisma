@@ -82,19 +82,19 @@ model approval_doc {
   type_id            Int?
   start_date         DateTime       @db.DateTime(0)
   end_date           DateTime       @db.DateTime(0)
-  amount             Int
   reason             String
   written_place      String
   backup_contact     String
   attachment         String?
   status             String
-  status_first_appr  String?
+  amount             Int
   first_appr_at      DateTime?      @db.DateTime(0)
-  status_second_appr String?
   second_appr_at     DateTime?      @db.DateTime(0)
+  status_first_appr  String?
+  status_second_appr String?
   dep                department?    @relation(fields: [dep_id], references: [id])
-  emp                employee       @relation(fields: [emp_id], references: [id])
-  type               leave_type?    @relation(fields: [type_id], references: [id], onDelete: Cascade)
+  emp                employee       @relation(fields: [emp_id], references: [id], onDelete: Cascade)
+  type               leave_type?    @relation(fields: [type_id], references: [id])
   notification       notification[] @relation("doc_id")
 
   @@index([dep_id], map: "approval_doc_dep_id_fkey")
@@ -109,7 +109,7 @@ model time_record {
   clock_in    DateTime  @db.DateTime(0)
   clock_out   DateTime? @db.DateTime(0)
   total_hours Decimal?  @db.Decimal(4, 2)
-  emp         employee  @relation(fields: [emp_id], references: [id])
+  emp         employee  @relation(fields: [emp_id], references: [id], onDelete: Cascade)
 
   @@index([emp_id], map: "time_record_emp_id_fkey")
 }
