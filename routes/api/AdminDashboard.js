@@ -97,6 +97,104 @@ router.get("/", async (req, res) => {
   }
 });
 
+router.get("/department/:id", async (req, res) => {
+  const id = parseInt(req.params.id);
+  const currentDate = new Date();
+
+  try {
+    const empCount = await prisma.employee.aggregate({
+      _count: {
+        id: true,
+      },
+      where: {
+        status: "active",
+        dep_id: id,
+      },
+    });
+
+    const pendingAmount = await prisma.approval_doc.aggregate({
+      _count: {
+        id: true,
+      },
+      where: {
+        AND: {
+          end_date: {
+            gt: currentDate, // if the end date and time is greater than current date and time
+          },
+          status: {
+            contains: "pending",
+          },
+          dep_id: id,
+        },
+      },
+    });
+
+    const approvedAmount = await prisma.approval_doc.aggregate({
+      _count: {
+        id: true,
+      },
+      where: {
+        AND: {
+          end_date: {
+            gt: currentDate, // if the end date and time is greater than current date and time
+          },
+          status: {
+            contains: "approved",
+          },
+          dep_id: id,
+        },
+      },
+    });
+
+    const rejectedAmount = await prisma.approval_doc.aggregate({
+      _count: {
+        id: true,
+      },
+      where: {
+        AND: {
+          end_date: {
+            gt: currentDate, // if the end date and time is greater than current date and time
+          },
+          status: {
+            contains: "rejected",
+          },
+          dep_id: id,
+        },
+      },
+    });
+
+    const todayAmount = await prisma.approval_doc.aggregate({
+      _count: {
+        id: true,
+      },
+      where: {
+        AND: {
+          start_date: {
+            lte: currentDate,
+          },
+          end_date: {
+            gte: currentDate, // if the end date and time is greater than current date and time ***** only count the day off that is not passed yet.
+          },
+          status: {
+            contains: "approved",
+          },
+          dep_id: id,
+        },
+      },
+    });
+
+    res.status(200).json({
+      empCount,
+      pendingAmount,
+      approvedAmount,
+      rejectedAmount,
+      todayAmount,
+    });
+  } catch (e) {
+    checkingValidationError(e, req, res);
+  }
+});
+
 router.post("/day", async (req, res) => {
   const { date } = req.body;
 
