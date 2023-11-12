@@ -137,12 +137,15 @@ router.get("/", async (req, res) => {
           ? new Date(timeRecord.time_record[0].clock_in)
           : startTime;
 
-      startTime.setDate(clockIn.getDate());
-      startTime.setMonth(clockIn.getMonth());
-      startTime.setFullYear(clockIn.getFullYear());
-      startTime.setMinutes(
-        startTime.getMinutes() + clockIn.getTimezoneOffset()
-      );
+      // Set the year to 1970
+      clockIn.setFullYear(1970);
+
+      // Set the month to 01 (months are zero-based in JavaScript, so January is 0)
+      clockIn.setMonth(0);
+
+      // Set the day to 01
+      clockIn.setDate(1);
+
       const diffTime = clockIn - startTime;
 
       if (diffTime > 0) {
@@ -212,12 +215,14 @@ router.get("/dep/:dep_id", async (req, res) => {
           ? new Date(timeRecord.time_record[0].clock_in)
           : startTime;
 
-      startTime.setDate(clockIn.getDate());
-      startTime.setMonth(clockIn.getMonth());
-      startTime.setFullYear(clockIn.getFullYear());
-      startTime.setMinutes(
-        startTime.getMinutes() + clockIn.getTimezoneOffset()
-      );
+      // Set the year to 1970
+      clockIn.setFullYear(1970);
+
+      // Set the month to 01 (months are zero-based in JavaScript, so January is 0)
+      clockIn.setMonth(0);
+
+      // Set the day to 01
+      clockIn.setDate(1);
       const diffTime = clockIn - startTime;
 
       if (diffTime > 0) {
@@ -293,12 +298,14 @@ router.get("/employee/:id", async (req, res) => {
       const startTime = new Date(workHour.start_time);
       const clockIn = new Date(timeRecord.clock_in);
 
-      startTime.setDate(clockIn.getDate());
-      startTime.setMonth(clockIn.getMonth());
-      startTime.setFullYear(clockIn.getFullYear());
-      startTime.setMinutes(
-        startTime.getMinutes() + clockIn.getTimezoneOffset()
-      );
+      // Set the year to 1970
+      clockIn.setFullYear(1970);
+
+      // Set the month to 01 (months are zero-based in JavaScript, so January is 0)
+      clockIn.setMonth(0);
+
+      // Set the day to 01
+      clockIn.setDate(1);
 
       const diffTime = clockIn - startTime;
       if (diffTime > 0) {

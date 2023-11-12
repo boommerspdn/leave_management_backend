@@ -126,6 +126,6 @@ model notification {
 
 model work_hour {
   id         Int      @id
-  start_time DateTime @db.Time(0)
-  end_time   DateTime @db.Time(0)
+  start_time DateTime @db.Timestamp(0)
+  end_time   DateTime @db.Timestamp(0)
 }
