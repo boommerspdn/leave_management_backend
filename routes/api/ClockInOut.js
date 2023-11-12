@@ -137,14 +137,13 @@ router.get("/", async (req, res) => {
           ? new Date(timeRecord.time_record[0].clock_in)
           : startTime;
 
-      // Set the year to 1970
       clockIn.setFullYear(1970);
-
-      // Set the month to 01 (months are zero-based in JavaScript, so January is 0)
       clockIn.setMonth(0);
-
-      // Set the day to 01
       clockIn.setDate(1);
+
+      startTime.setFullYear(1970);
+      startTime.setMonth(0);
+      startTime.setDate(1);
 
       const diffTime = clockIn - startTime;
 

@@ -7,8 +7,8 @@ const prisma = require("../../client");
 router.post("/", async (req, res) => {
   const { start_time, end_time } = req.body;
 
-  const startTime = new Date(0);
-  const endTime = new Date(0);
+  const startTime = new Date();
+  const endTime = new Date();
 
   const startHour = parseInt(start_time.slice(0, 2));
   const startMinute = parseInt(start_time.slice(3, 4));
