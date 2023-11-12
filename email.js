@@ -1,4 +1,8 @@
 const nodemailer = require("nodemailer");
+const moment = require("moment-timezone");
+
+// Set the timezone for your application
+moment.tz.setDefault("Asia/Bangkok");
 
 const capitalize = (string) => string.charAt(0).toUpperCase() + string.slice(1);
 
@@ -14,7 +18,7 @@ const emailContent = (
   firstStatus,
   secondStatus
 ) => {
-  const sentAt = new Date();
+  const myDate = moment();
 
   if (method === "request") {
     return `
@@ -25,7 +29,7 @@ const emailContent = (
     <p>Date: ${startDate.toLocaleDateString(
       "en-GB"
     )} - ${endDate.toLocaleDateString("en-GB")}</p>
-    <p>Sent At: ${sentAt.toLocaleString("en-GB")}</p>
+    <p>Sent At: ${myDate.format("YYYY-MM-DD HH:mm:ss")}</p>
     <p>Reason: ${reason}</p>
     <p>Backup Contact: ${backupContact}</p>
     </div>`;
