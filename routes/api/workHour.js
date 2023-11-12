@@ -16,8 +16,8 @@ router.post("/", async (req, res) => {
   const endHour = parseInt(end_time.slice(0, 2));
   const endMinute = parseInt(end_time.slice(3, 4));
 
-  startTime.setHours(startHour, startMinute);
-  endTime.setHours(endHour, endMinute);
+  startTime.setHours(startHour, startMinute, 0, 0);
+  endTime.setHours(endHour, endMinute, 0, 0);
 
   try {
     const upsertWorkHour = await prisma.work_hour.upsert({
@@ -25,13 +25,13 @@ router.post("/", async (req, res) => {
         id: 1,
       },
       update: {
-        start_time: new Date(),
-        end_time: new Date(),
+        start_time: startTime,
+        end_time: endTime,
       },
       create: {
         id: 1,
-        start_time: new Date(),
-        end_time: new Date(),
+        start_time: startTime,
+        end_time: endTime,
       },
     });
 
