@@ -599,7 +599,6 @@ router.put("/status/:id", async (req, res) => {
           `${getNotificationSender.first_name} ${getNotificationSender.last_name}`,
           "",
           "",
-          new Date(),
           "",
           "",
           id,
