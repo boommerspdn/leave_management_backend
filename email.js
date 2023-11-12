@@ -29,7 +29,7 @@ const emailContent = (
     <p>Date: ${startDate.toLocaleDateString(
       "en-GB"
     )} - ${endDate.toLocaleDateString("en-GB")}</p>
-    <p>Sent At: ${myDate.format("YYYY-MM-DD HH:mm:ss")}</p>
+    <p>Sent At: ${myDate.format("DD/MM/YYYY HH:mm:ss")}</p>
     <p>Reason: ${reason}</p>
     <p>Backup Contact: ${backupContact}</p>
     </div>`;
