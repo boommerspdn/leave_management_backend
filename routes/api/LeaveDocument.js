@@ -258,7 +258,6 @@ router.post("/", upload.single("attachment"), async (req, res) => {
           `${senderName.first_name} ${senderName.last_name}`,
           createApprovalDoc.start_date,
           createApprovalDoc.end_date,
-          new Date(),
           createApprovalDoc.reason,
           createApprovalDoc.backup_contact
         )
