@@ -8,13 +8,14 @@ const emailContent = (
   sender,
   startDate,
   endDate,
-  sentAt,
   reason,
   backupContact,
   docId,
   firstStatus,
   secondStatus
 ) => {
+  const sentAt = new Date();
+
   if (method === "request") {
     return `
     <div style="color: black;">
