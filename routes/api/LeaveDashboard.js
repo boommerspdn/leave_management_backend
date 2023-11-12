@@ -20,7 +20,10 @@ router.get("/:empId", async (req, res) => {
       },
     });
 
-    var serviceYear = moment().diff(employedDate.date_employed, "years");
+    var serviceYear =
+      moment().diff(employedDate.date_employed, "years") === null
+        ? moment().diff(employedDate.date_employed, "years")
+        : 0;
 
     const allLeave = await prisma.approval_doc.aggregate({
       _sum: {
