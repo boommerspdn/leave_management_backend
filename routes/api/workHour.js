@@ -16,6 +16,14 @@ router.post("/", async (req, res) => {
   const endHour = parseInt(end_time.slice(0, 2));
   const endMinute = parseInt(end_time.slice(3, 4));
 
+  console.log(start_time);
+  console.log(end_time);
+
+  console.log(startHour);
+  console.log(startMinute);
+  console.log(endHour);
+  console.log(endMinute);
+
   startTime.setHours(startHour, startMinute);
   endTime.setHours(endHour, endMinute);
 
