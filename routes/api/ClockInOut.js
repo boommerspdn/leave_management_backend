@@ -66,8 +66,8 @@ router.post("/", async (req, res) => {
       data: {
         emp_id: parseInt(empId),
         date: new Date(date),
-        clock_in: clockIn ? new Date(clockIn) : undefined,
-        clock_out: clockOut ? new Date(clockOut) : undefined,
+        clock_in: clockIn ? new Date() : undefined,
+        clock_out: clockOut ? new Date() : undefined,
         total_hours:
           clockIn && clockOut
             ? await calculateTotalHours(clockIn, clockOut)
