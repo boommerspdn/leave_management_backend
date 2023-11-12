@@ -13,13 +13,13 @@ router.post("/", async (req, res) => {
         id: 1,
       },
       update: {
-        start_time: start_time,
-        end_time: end_time,
+        start_time: new Date(start_time),
+        end_time: new Date(end_time),
       },
       create: {
         id: 1,
-        start_time: start_time,
-        end_time: end_time,
+        start_time: new Date(start_time),
+        end_time: new Date(end_time),
       },
     });
 
