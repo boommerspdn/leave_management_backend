@@ -25,13 +25,13 @@ router.post("/", async (req, res) => {
         id: 1,
       },
       update: {
-        start_time: startTime,
-        end_time: endTime,
+        start_time: new Date(),
+        end_time: new Date(),
       },
       create: {
         id: 1,
-        start_time: startTime,
-        end_time: endTime,
+        start_time: new Date(),
+        end_time: new Date(),
       },
     });
 
